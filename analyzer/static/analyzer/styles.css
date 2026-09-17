@@ -1,0 +1,412 @@
+:root {
+    --ink: #17212b;
+    --muted: #536170;
+    --line: #cfd7df;
+    --panel: #ffffff;
+    --paper: #f4f6f8;
+    --accent: #1f4e79;
+    --accent-dark: #153a5b;
+    --soft: #e9eef2;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+}
+
+.page-shell {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 28px 0 42px;
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 28px;
+    align-items: end;
+    padding: 20px 0 22px;
+    border-bottom: 2px solid var(--ink);
+}
+
+.course-label {
+    margin: 0 0 6px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+h1, h2, p {
+    margin-top: 0;
+}
+
+h1 {
+    max-width: 760px;
+    margin-bottom: 0;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.08;
+}
+
+.header-note {
+    max-width: 360px;
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.workflow {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.workflow-step {
+    min-height: 82px;
+    padding: 11px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+}
+
+.workflow-step span {
+    display: block;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.workflow-step strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+.notice,
+.empty-state,
+.control-panel,
+.summary-grid article,
+.analysis-layout article,
+.image-comparison figure {
+    border: 1px solid var(--line);
+    background: var(--panel);
+}
+
+.notice {
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    color: #7a2e13;
+    border-color: #d8aa95;
+}
+
+.control-panel {
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.upload-form {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) minmax(280px, 1fr) auto;
+    gap: 14px;
+    align-items: end;
+}
+
+.file-control,
+.k-control {
+    display: grid;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid var(--line);
+    background: #fff;
+}
+
+.k-control {
+    grid-template-columns: 1fr 54px;
+}
+
+.k-control span,
+.k-control input {
+    grid-column: 1 / -1;
+}
+
+.k-control output {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: center;
+    justify-self: end;
+    min-width: 42px;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    text-align: center;
+    color: var(--ink);
+    background: var(--soft);
+}
+
+input[type="range"] {
+    width: calc(100% - 62px);
+}
+
+button {
+    min-height: 42px;
+    padding: 0 18px;
+    border: 1px solid var(--accent-dark);
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--accent-dark);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.summary-grid article {
+    padding: 14px;
+}
+
+.summary-grid span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.summary-grid strong {
+    display: block;
+    margin-top: 5px;
+    font-size: 18px;
+}
+
+.image-comparison {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+figure {
+    margin: 0;
+    padding: 14px;
+}
+
+figcaption {
+    margin-bottom: 12px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+figure img {
+    width: 100%;
+    max-height: 430px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    background: #111;
+}
+
+.analysis-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.analysis-layout article {
+    min-width: 0;
+    padding: 16px;
+}
+
+.wide-panel {
+    grid-column: 1 / -1;
+}
+
+.panel-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: start;
+    margin-bottom: 14px;
+}
+
+.panel-heading h2 {
+    margin-bottom: 0;
+    font-size: 18px;
+    line-height: 1.25;
+}
+
+.panel-heading p {
+    max-width: 360px;
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: right;
+}
+
+.math-card {
+    border-left: 4px solid var(--accent);
+}
+
+.step-card {
+    position: relative;
+}
+
+.interpretation-card {
+    background: #fbfcfd;
+}
+
+.formula {
+    margin: 10px 0;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    background: #f8fafb;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 15px;
+    color: #17232f;
+    overflow-x: auto;
+}
+
+.result-line {
+    margin: 8px 0;
+    font-weight: 700;
+}
+
+.meaning {
+    margin-bottom: 12px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    border-top: 1px solid var(--line);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+th,
+td {
+    padding: 7px 8px;
+    border: 1px solid var(--line);
+    text-align: right;
+    white-space: nowrap;
+}
+
+th {
+    background: var(--soft);
+    color: var(--ink);
+}
+
+.comparison-panel {
+    border-left-color: #34495e;
+}
+
+.eigenvector-panel {
+    border-left-color: #2f5f6f;
+}
+
+.comparison-table {
+    font-size: 14px;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 10px 12px;
+}
+
+.comparison-table td:first-child,
+.comparison-table th:first-child {
+    text-align: center;
+    width: 80px;
+}
+
+.table-scroll {
+    overflow: auto;
+    max-height: 330px;
+    border: 1px solid var(--line);
+}
+
+.matrix-table td {
+    min-width: 72px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
+}
+
+.eigenvector-table th {
+    text-align: center;
+}
+
+.eigenvector-table tbody th {
+    min-width: 78px;
+    background: #f8fafb;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.eigenvector-table td {
+    min-width: 92px;
+}
+
+.empty-state {
+    padding: 28px;
+}
+
+.empty-state p {
+    max-width: 760px;
+    margin-bottom: 0;
+    color: var(--muted);
+}
+
+@media (max-width: 900px) {
+    .project-header,
+    .panel-heading {
+        display: block;
+    }
+
+    .header-note,
+    .panel-heading p {
+        max-width: none;
+        margin-top: 10px;
+        text-align: left;
+    }
+
+    .workflow {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .upload-form,
+    .summary-grid,
+    .image-comparison,
+    .analysis-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-grid strong {
+        font-size: 16px;
+    }
+}

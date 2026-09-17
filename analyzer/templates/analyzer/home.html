@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Transformation and Eigen-Feature Analyzer</title>
+    <link rel="stylesheet" href="{% static 'analyzer/styles.css' %}">
+</head>
+<body>
+    <main class="page-shell">
+        <header class="project-header">
+            <div>
+                <p class="course-label">Linear Algebra & Vector Calculus Mini Project</p>
+                <h1>Image Transformation and Eigen-Feature Analyzer</h1>
+            </div>
+            <p class="header-note">A mathematics-first Django application for matrix rank, eigen-features, projection, reconstruction, and error analysis.</p>
+        </header>
+
+        <section class="workflow" aria-label="Sequential Linear Algebra workflow">
+            <div class="workflow-step"><span>01</span><strong>Image &rarr; Matrix</strong></div>
+            <div class="workflow-step"><span>02</span><strong>Matrix Rank</strong></div>
+            <div class="workflow-step"><span>03</span><strong>Eigen Analysis</strong></div>
+            <div class="workflow-step"><span>04</span><strong>Component Selection</strong></div>
+            <div class="workflow-step"><span>05</span><strong>Projection</strong></div>
+            <div class="workflow-step"><span>06</span><strong>Reconstruction</strong></div>
+            <div class="workflow-step"><span>07</span><strong>Error Analysis</strong></div>
+            <div class="workflow-step"><span>08</span><strong>Interpretation</strong></div>
+        </section>
+
+        {% if error %}
+            <div class="notice">{{ error }}</div>
+        {% endif %}
+
+        <section class="control-panel">
+            <form method="post" enctype="multipart/form-data" class="upload-form">
+                {% csrf_token %}
+                <input type="hidden" name="image_name" value="{{ image_name }}">
+                <label class="file-control">
+                    <span>Upload grayscale or color image</span>
+                    <input type="file" name="image" accept="image/*">
+                </label>
+                <label class="k-control">
+                    <span>Dominant components k</span>
+                    <input type="range" name="k" min="1" max="{{ result.max_k|default:64 }}" value="{{ result.selected_k|default:10 }}" id="kRange" list="kMarks">
+                    <datalist id="kMarks">
+                        <option value="1"></option>
+                        <option value="5"></option>
+                        <option value="10"></option>
+                        <option value="20"></option>
+                        <option value="32"></option>
+                        <option value="64"></option>
+                    </datalist>
+                    <output id="kValue">{{ result.selected_k|default:10 }}</output>
+                </label>
+                <button type="submit">Run Analysis</button>
+            </form>
+        </section>
+
+        {% if result %}
+            <section class="summary-grid" aria-label="Key computed results">
+                <article><span>Matrix Size</span><strong>{{ result.matrix_shape }}</strong></article>
+                <article><span>Rank</span><strong>{{ result.rank }}</strong></article>
+                <article><span>Selected k</span><strong>{{ result.selected_k }}</strong></article>
+                <article><span>Min Pixel</span><strong>{{ result.matrix_min|floatformat:4 }}</strong></article>
+                <article><span>Max Pixel</span><strong>{{ result.matrix_max|floatformat:4 }}</strong></article>
+                <article><span>Frobenius Error</span><strong>{{ result.frobenius_error|floatformat:4 }}</strong></article>
+                <article><span>Relative Error</span><strong>{{ result.relative_error|floatformat:4 }}%</strong></article>
+                <article><span>Orthogonality</span><strong>{{ result.orthogonality_status }}</strong></article>
+            </section>
+
+            <section class="image-comparison">
+                <figure>
+                    <figcaption>Original 64 x 64 grayscale matrix</figcaption>
+                    <img src="{{ result.original_image }}" alt="Original grayscale image">
+                </figure>
+                <figure>
+                    <figcaption>Reconstructed image using k = {{ result.selected_k }}</figcaption>
+                    <img src="{{ result.reconstructed_image }}" alt="Reconstructed image">
+                </figure>
+            </section>
+
+            <section class="analysis-layout">
+                <article class="wide-panel math-card step-card">
+                    <div class="panel-heading">
+                        <h2>01 Matrix Representation</h2>
+                        <p>Image data becomes a numerical matrix.</p>
+                    </div>
+                    <div class="formula">A &isin; R<sup>64 x 64</sup>, 0 &le; A[i,j] &le; 1</div>
+                    <p class="result-line">A dimensions = {{ result.matrix_shape }}</p>
+                    <p class="result-line">Pixel range = [{{ result.matrix_min|floatformat:4 }}, {{ result.matrix_max|floatformat:4 }}]; range check = {{ result.matrix_normalized|yesno:"Passed,Failed" }}</p>
+                    <p class="meaning">The uploaded image is converted to grayscale, resized to 64 x 64, and normalized so every entry in A is a real number between 0 and 1.</p>
+                </article>
+
+                <article class="math-card step-card">
+                    <div class="panel-heading">
+                        <h2>02 Matrix Rank</h2>
+                        <p>Rank is not the selected k value.</p>
+                    </div>
+                    <div class="formula">rank(A)</div>
+                    <p class="result-line">rank(A) = {{ result.rank }}</p>
+                    <p class="meaning">The rank represents the number of linearly independent rows or columns of the image matrix.</p>
+                </article>
+
+                <article class="math-card step-card">
+                    <div class="panel-heading">
+                        <h2>03 Eigenvalue / Eigenvector Analysis</h2>
+                        <p>Eigenpairs are calculated from the symmetric matrix C.</p>
+                    </div>
+                    <div class="formula">C = A<sup>T</sup>A</div>
+                    <div class="formula">Cv = &lambda;v</div>
+                    <p class="result-line">C dimensions = {{ result.covariance_shape }}</p>
+                    <p class="result-line">Sorted descending = {{ result.eigenvalues_sorted|yesno:"Yes,No" }}; nonnegative = {{ result.eigenvalues_nonnegative|yesno:"Yes,No" }}</p>
+                    <p class="result-line">Dominant eigenvalues: {{ result.dominant_eigenvalues|join:', ' }}</p>
+                    <p class="meaning">Larger eigenvalues identify stronger vector-space directions in the image matrix.</p>
+                </article>
+
+                <article class="wide-panel math-card eigenvector-panel">
+                    <div class="panel-heading">
+                        <h2>Eigenvector Preview</h2>
+                        <p>First 10 entries of the first 5 dominant eigenvectors.</p>
+                    </div>
+                    <div class="formula">C = A<sup>T</sup>A</div>
+                    <div class="formula">Cv = &lambda;v</div>
+                    <p class="result-line">Eigenvector matrix V<sub>5</sub> dimensions = {{ result.dominant_eigenvector_shape }}</p>
+                    <p class="meaning">Each eigenvector represents an orthogonal direction in the vector space associated with C = A<sup>T</sup>A. The eigenvectors corresponding to the largest eigenvalues are selected as dominant components. Each complete eigenvector v<sub>i</sub> contains 64 entries; this table shows the first 10.</p>
+                    <div class="table-scroll">
+                        <table class="matrix-table eigenvector-table">
+                            <thead>
+                                <tr>
+                                    <th>entry</th>
+                                    <th>v<sub>1</sub></th>
+                                    <th>v<sub>2</sub></th>
+                                    <th>v<sub>3</sub></th>
+                                    <th>v<sub>4</sub></th>
+                                    <th>v<sub>5</sub></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in result.dominant_eigenvectors_preview %}
+                                    <tr>
+                                        <th>row {{ forloop.counter }}</th>
+                                        {% for value in row %}
+                                            <td>{{ value }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="math-card step-card">
+                    <div class="panel-heading">
+                        <h2>04 Component Selection</h2>
+                        <p>The first k dominant eigenvectors are selected.</p>
+                    </div>
+                    <div class="formula">V<sub>k</sub> = [v<sub>1</sub> v<sub>2</sub> ... v<sub>k</sub>]</div>
+                    <p class="result-line">Selected k = {{ result.selected_k }}</p>
+                    <p class="result-line">V<sub>k</sub> dimensions = {{ result.vk_shape }}</p>
+                    <p class="meaning">These eigenvectors form the dominant subspace used to approximate the image.</p>
+                </article>
+
+                <article class="math-card step-card">
+                    <div class="panel-heading">
+                        <h2>05 Projection</h2>
+                        <p>The image matrix is projected into the selected subspace.</p>
+                    </div>
+                    <div class="formula">P = AV<sub>k</sub></div>
+                    <p class="result-line">{{ result.dimension_equation }}</p>
+                    <p class="result-line">A = {{ result.matrix_shape }}, V<sub>k</sub> = {{ result.vk_shape }}, P = {{ result.projection_shape }}</p>
+                    <p class="meaning">Projection expresses A using the coordinate directions in V<sub>k</sub>.</p>
+                </article>
+
+                <article class="math-card step-card">
+                    <div class="panel-heading">
+                        <h2>06 Reconstruction</h2>
+                        <p>The approximation is rebuilt from projected data.</p>
+                    </div>
+                    <div class="formula">A<sub>k</sub> = PV<sub>k</sub><sup>T</sup></div>
+                    <p class="result-line">{{ result.reconstruction_dimension_equation }}</p>
+                    <p class="result-line">P = {{ result.projection_shape }}, V<sub>k</sub><sup>T</sup> = {{ result.vk_transpose_shape }}, A<sub>k</sub> = {{ result.reconstruction_shape }}</p>
+                    <p class="meaning">A<sub>k</sub> is an approximation of A using only k dominant eigen-components.</p>
+                </article>
+
+                <article class="wide-panel math-card step-card">
+                    <div class="panel-heading">
+                        <h2>07 Error Analysis</h2>
+                        <p>Original matrix and reconstructed matrix are compared.</p>
+                    </div>
+                    <div class="formula">E<sub>absolute</sub> = ||A - A<sub>k</sub>||<sub>F</sub></div>
+                    <div class="formula">E<sub>relative</sub> = ||A - A<sub>k</sub>||<sub>F</sub> / ||A||<sub>F</sub> x 100</div>
+                    <p class="result-line">Absolute Frobenius Error = {{ result.frobenius_error|floatformat:4 }}</p>
+                    <p class="result-line">Relative Reconstruction Error = {{ result.relative_error|floatformat:4 }}%</p>
+                    <p class="meaning">The relative error reports the reconstruction difference as a percentage of the original matrix norm.</p>
+                </article>
+
+                <article class="wide-panel math-card interpretation-card">
+                    <div class="panel-heading">
+                        <h2>08 Mathematical Interpretation</h2>
+                        <p>Concise viva explanation.</p>
+                    </div>
+                    <p class="meaning">The image is treated as a matrix A. Rank(A) describes independent structure in that matrix. The eigenvectors of A<sup>T</sup>A give orthogonal directions in the image vector space. Selecting k dominant eigenvectors gives a lower-dimensional representation. Projection calculates P = AV<sub>k</sub>, reconstruction calculates A<sub>k</sub> = PV<sub>k</sub><sup>T</sup>, and the Frobenius error measures how much information is lost.</p>
+                    <p class="result-line">For this upload: k = {{ result.selected_k }}, rank(A) = {{ result.rank }}, relative error = {{ result.relative_error|floatformat:4 }}%.</p>
+                </article>
+
+                <article class="wide-panel math-card comparison-panel">
+                    <div class="panel-heading">
+                        <h2>Component Comparison</h2>
+                        <p>Each row is calculated independently for k = 1, 5, 10, 20, 32, 64.</p>
+                    </div>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>k</th>
+                                <th>Frobenius Error</th>
+                                <th>Relative Error (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in result.error_series %}
+                                <tr>
+                                    <td>{{ row.k }}</td>
+                                    <td>{{ row.error }}</td>
+                                    <td>{{ row.relative_error }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </article>
+
+                <article class="wide-panel">
+                    <div class="panel-heading">
+                        <h2>Eigenvalue Spectrum</h2>
+                        <p>Computed from A<sup>T</sup>A and sorted descending.</p>
+                    </div>
+                    <canvas id="eigenChart" height="180" data-values="{{ result.eigenvalues|join:',' }}"></canvas>
+                </article>
+
+                <article>
+                    <div class="panel-heading">
+                        <h2>Matrix A Preview</h2>
+                        <p>First 10 rows and columns after normalization.</p>
+                    </div>
+                    {% include 'analyzer/table_preview.html' with data=result.matrix_preview %}
+                </article>
+
+                <article>
+                    <div class="panel-heading">
+                        <h2>Projection P Preview</h2>
+                        <p>First rows of P = AV<sub>k</sub>.</p>
+                    </div>
+                    {% include 'analyzer/table_preview.html' with data=result.projection_preview %}
+                </article>
+
+                <article class="wide-panel math-card">
+                    <div class="panel-heading">
+                        <h2>Orthogonality Verification</h2>
+                        <p>Selected eigenvectors should form an orthonormal basis.</p>
+                    </div>
+                    <div class="formula">V<sub>k</sub><sup>T</sup>V<sub>k</sub> &asymp; I<sub>k</sub></div>
+                    <p class="result-line">Orthogonality Error = {{ result.orthogonality_error|floatformat:10 }}; Orthogonal = {{ result.orthogonality_status }}</p>
+                    {% include 'analyzer/table_preview.html' with data=result.eigenvectors_preview %}
+                </article>
+            </section>
+        {% else %}
+            <section class="empty-state">
+                <h2>Upload an image to begin</h2>
+                <p>The image will be converted to grayscale, resized to 64 x 64, converted into matrix A, analyzed through A<sup>T</sup>A, projected onto dominant eigenvectors, reconstructed, and compared with the original matrix.</p>
+            </section>
+        {% endif %}
+    </main>
+    <script src="{% static 'analyzer/app.js' %}"></script>
+</body>
+</html>
