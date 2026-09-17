@@ -1,13 +1,66 @@
-<div class="table-scroll">
-    <table class="matrix-table">
-        <tbody>
-            {% for row in data %}
+<div class="table-preview">
+
+    <div class="table-preview-top">
+
+        <div class="table-preview-title">
+            <span class="table-symbol">Σ</span>
+
+            <div>
+                <strong>Numerical Matrix</strong>
+                <small>Computed values</small>
+            </div>
+        </div>
+
+        <span class="table-preview-badge">
+            PREVIEW
+        </span>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="matrix-table">
+
+            <tbody>
+
+                {% for row in data %}
+
                 <tr>
+
+                    <th class="matrix-index">
+                        {{ forloop.counter }}
+                    </th>
+
                     {% for value in row %}
-                        <td>{{ value }}</td>
+
+                    <td>
+                        {{ value }}
+                    </td>
+
                     {% endfor %}
+
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="table-preview-footer">
+
+        <span>
+            Showing preview values
+        </span>
+
+        <span>
+            Matrix computation performed with NumPy
+        </span>
+
+    </div>
+
 </div>
