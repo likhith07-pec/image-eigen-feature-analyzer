@@ -1,1535 +1,1278 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>EigenLab — Image Transformation & Eigen-Feature Analyzer</title>
-
+    <title>EigenLab — Image Transformation &amp; Eigen-Feature Analyzer</title>
+    <meta name="description" content="Decompose digital images into orthogonal eigen-spaces, compute low-rank approximations, and explore dimensionality reduction in real time.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,600;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'analyzer/base.css' %}">
     <link rel="stylesheet" href="{% static 'analyzer/styles.css' %}">
 </head>
+<body class="eigenlab-body">
 
-<body>
+    <!-- ── Atmospheric Background ── -->
+    <div class="bg-atmospheric" aria-hidden="true"></div>
+    <div class="bg-emblem" aria-hidden="true">λ</div>
+    <div class="bg-wordmark" aria-hidden="true">— EIGENLAB · STUDIOS —</div>
 
-    <!-- Background atmosphere -->
-    <div class="ambient ambient-blue"></div>
-    <div class="ambient ambient-violet"></div>
-    <div class="math-grid"></div>
-
-    <main class="page-shell">
-
-        <!-- =========================================================
-             TOP NAV
-        ========================================================== -->
-        <header class="topbar">
-
-            <div class="brand">
-                <div class="brand-mark">λ</div>
-
-                <div class="brand-text">
-                    <span class="brand-eyebrow">
-                        LINEAR ALGEBRA / VECTOR CALCULUS
-                    </span>
-
-                    <span class="brand-name">
-                        EigenLab
-                    </span>
+    <!-- ── Navigation ── -->
+    <header class="site-nav" id="topbar">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand" aria-label="EigenLab Home">
+                <div class="nav-emblem">λ</div>
+                <div class="nav-brand-text">
+                    <span class="nav-brand-name">EigenLab</span>
+                    <span class="nav-brand-sub">Linear Algebra &amp; Vector Calculus</span>
                 </div>
+            </a>
+
+            <nav aria-label="Site navigation">
+                <ul class="nav-links">
+                    <li><a href="#pipelineSection">Pipeline</a></li>
+                    <li><a href="#controlPanel">Analyze</a></li>
+                    {% if result %}<li><a href="#resultsSection">Results</a></li>{% endif %}
+                </ul>
+            </nav>
+
+            <div class="nav-status" aria-label="Engine status">
+                <span class="status-dot" aria-hidden="true"></span>
+                Analysis Engine Online
             </div>
 
-            <div class="system-status">
-                <span class="status-dot"></span>
-                <span>Analysis Engine Ready</span>
-            </div>
+            <a href="#controlPanel" class="nav-cta scroll-link">Upload &amp; Analyze</a>
+        </div>
+    </header>
 
-        </header>
+    <div class="page-wrapper">
 
+        <!-- ══════════════════════════════════════════════════════════
+             HERO SECTION
+             ══════════════════════════════════════════════════════════ -->
+        <section class="hero-section" aria-label="Hero">
+            <div style="max-width: 900px; width: 100%;">
+                <span class="hero-eyebrow" data-fade>EigenLab — Design &amp; Computation</span>
 
-        <!-- =========================================================
-             HERO
-        ========================================================== -->
-        <section class="hero">
-
-            <div class="hero-content">
-
-                <div class="hero-kicker">
-                    <span class="kicker-number">01</span>
-                    IMAGE TRANSFORMATION SYSTEM
-                </div>
-
-                <h1>
-                    Image Transformation
-                    <br>
-                    <em>&amp; Eigen-Feature Analyzer</em>
+                <h1 class="hero-headline" data-fade style="transition-delay: 0.1s">
+                    Image Transformation &amp;<br>
+                    <em>Eigen-Feature</em> Analyzer
                 </h1>
 
-                <p class="hero-description">
-                    A mathematics-first computational laboratory for transforming
-                    image data into matrices, extracting dominant eigen-directions,
-                    projecting the data, reconstructing the image and measuring
-                    information loss.
+                <p class="hero-subtext" data-fade style="transition-delay: 0.2s">
+                    Decompose digital images into orthogonal eigen-spaces, compute low-rank matrix approximations, and visualize dimensionality reduction in real time using covariance eigen-decomposition.
                 </p>
 
-                <div class="hero-tags">
-                    <span>Matrix</span>
-                    <span>Rank</span>
-                    <span>Eigenvectors</span>
-                    <span>Projection</span>
-                    <span>Reconstruction</span>
+                <div class="hero-tags" data-fade style="transition-delay: 0.25s">
+                    <span class="hero-tag">Matrix A ∈ ℝ<sup>m×n</sup></span>
+                    <span class="hero-tag">Rank ρ(A)</span>
+                    <span class="hero-tag">Eigenvectors V<sub>k</sub></span>
+                    <span class="hero-tag">Projection P = AV<sub>k</sub></span>
+                    <span class="hero-tag">Reconstruction A<sub>k</sub></span>
+                    <span class="hero-tag">Eckart-Young Theorem</span>
                 </div>
 
+                <div class="hero-actions" data-fade style="transition-delay: 0.3s">
+                    <a href="#controlPanel" class="btn-gold scroll-link">
+                        Begin Analysis
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="#pipelineSection" class="btn-outline scroll-link">
+                        Explore 8-Step Pipeline
+                    </a>
+                </div>
+
+                <!-- Inline pipeline showcase -->
+                <div class="pipeline-showcase" data-fade style="transition-delay: 0.4s">
+                    <div class="pipeline-showcase-header">
+                        <span class="eyebrow" style="margin-bottom:0">Mathematical Pipeline</span>
+                        <span class="pipeline-chip">SVD &amp; Eigen-Basis</span>
+                    </div>
+                    <div class="pipeline-nodes">
+                        <div class="p-node p-node--active">
+                            <span class="p-node-label">Matrix</span>
+                            <span class="p-node-math">A</span>
+                            <span class="p-node-dim">64 × 64</span>
+                        </div>
+                        <span class="p-arrow">→</span>
+                        <div class="p-node">
+                            <span class="p-node-label">Covariance</span>
+                            <span class="p-node-math">A<sup>T</sup>A</span>
+                            <span class="p-node-dim">64 × 64</span>
+                        </div>
+                        <span class="p-arrow">→</span>
+                        <div class="p-node p-node--active">
+                            <span class="p-node-label">Eigen-Basis</span>
+                            <span class="p-node-math">V<sub>k</sub></span>
+                            <span class="p-node-dim">64 × k</span>
+                        </div>
+                        <span class="p-arrow">→</span>
+                        <div class="p-node">
+                            <span class="p-node-label">Projection</span>
+                            <span class="p-node-math">P</span>
+                            <span class="p-node-dim">64 × k</span>
+                        </div>
+                        <span class="p-arrow">→</span>
+                        <div class="p-node">
+                            <span class="p-node-label">Reconstruct</span>
+                            <span class="p-node-math">A<sub>k</sub></span>
+                            <span class="p-node-dim">64 × 64</span>
+                        </div>
+                    </div>
+                    <div class="pipeline-objective">
+                        <span>Objective</span>
+                        <code>min ‖A − A<sub>k</sub>‖<sub>F</sub> &nbsp; s.t. rank(A<sub>k</sub>) ≤ k</code>
+                    </div>
+                </div>
             </div>
-
-
-            <!-- Mathematical visual -->
-            <div class="hero-equation">
-
-                <span class="equation-label">
-                    CORE PIPELINE
-                </span>
-
-                <div class="equation-main">
-                    A → A<sup>T</sup>A → V<sub>k</sub> → P → A<sub>k</sub>
-                </div>
-
-                <div class="equation-sub">
-                    structure → directions → projection → reconstruction
-                </div>
-
-                <div class="equation-ring ring-one"></div>
-                <div class="equation-ring ring-two"></div>
-
-            </div>
-
         </section>
 
+        <!-- ══════════════════════════════════════════════════════════
+             DARK "WHAT WE DO" SECTION (à la Avadhoot Studios)
+             ══════════════════════════════════════════════════════════ -->
+        <div class="dark-section page-section" data-fade>
+            <div class="section-container" style="text-align: center;">
+                <span class="eyebrow">Computational Image Analysis</span>
+                <h2 class="section-title" style="max-width: 700px; margin: 0 auto 20px; font-size: clamp(36px, 5vw, 72px);">
+                    A mathematical laboratory,<br>not a demo project.
+                </h2>
+                <p class="section-lead" style="max-width: 560px; margin: 0 auto;">
+                    We apply linear algebra and vector calculus rigorously — forming covariance matrices, solving eigenvalue equations, projecting into subspaces, and measuring reconstruction fidelity by the Eckart-Young theorem.
+                </p>
 
-        <!-- =========================================================
-             WORKFLOW
-        ========================================================== -->
-        <section class="workflow-section">
-
-            <div class="section-heading">
-                <div>
-                    <span class="section-eyebrow">
-                        COMPUTATIONAL SEQUENCE
-                    </span>
-
-                    <h2>
-                        From image to mathematical representation
-                    </h2>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border-dark); border: 1px solid var(--border-dark); border-radius: var(--radius-md); overflow: hidden; margin-top: 56px; max-width: 640px; margin-left: auto; margin-right: auto;">
+                    <div style="background: var(--bg-card); padding: 24px;">
+                        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 8px;">MATRICES</div>
+                        <div style="font-family: var(--serif); font-size: 28px; font-weight: 700; color: var(--ivory);">8</div>
+                        <div style="font-size: 12px; color: var(--ivory-muted);">Pipeline Stages</div>
+                    </div>
+                    <div style="background: var(--bg-card); padding: 24px; border-left: 1px solid var(--border-dark); border-right: 1px solid var(--border-dark);">
+                        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 8px;">PRECISION</div>
+                        <div style="font-family: var(--serif); font-size: 28px; font-weight: 700; color: var(--ivory);">64²</div>
+                        <div style="font-size: 12px; color: var(--ivory-muted);">Pixel Resolution</div>
+                    </div>
+                    <div style="background: var(--bg-card); padding: 24px;">
+                        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 8px;">THEORY</div>
+                        <div style="font-family: var(--serif); font-size: 28px; font-weight: 700; color: var(--ivory);">PSD</div>
+                        <div style="font-size: 12px; color: var(--ivory-muted);">Covariance Matrix</div>
+                    </div>
                 </div>
-
-                <span class="section-note">
-                    Every stage feeds the next
-                </span>
             </div>
-
-
-            <div class="workflow">
-
-                <div class="workflow-step">
-                    <span>01</span>
-                    <strong>Image → Matrix</strong>
-                    <small>pixel data</small>
-                </div>
-
-                <div class="workflow-step">
-                    <span>02</span>
-                    <strong>Matrix Rank</strong>
-                    <small>independence</small>
-                </div>
-
-                <div class="workflow-step">
-                    <span>03</span>
-                    <strong>Eigen Analysis</strong>
-                    <small>directions</small>
-                </div>
-
-                <div class="workflow-step">
-                    <span>04</span>
-                    <strong>Component Selection</strong>
-                    <small>dominant k</small>
-                </div>
-
-                <div class="workflow-step">
-                    <span>05</span>
-                    <strong>Projection</strong>
-                    <small>coordinates</small>
-                </div>
-
-                <div class="workflow-step">
-                    <span>06</span>
-                    <strong>Reconstruction</strong>
-                    <small>approximation</small>
-                </div>
-
-                <div class="workflow-step">
-                    <span>07</span>
-                    <strong>Error Analysis</strong>
-                    <small>information loss</small>
-                </div>
-
-                <div class="workflow-step">
-                    <span>08</span>
-                    <strong>Interpretation</strong>
-                    <small>viva insight</small>
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================================================
-             ERROR NOTICE
-        ========================================================== -->
-        {% if error %}
-
-        <div class="notice">
-
-            <div class="notice-icon">
-                !
-            </div>
-
-            <div>
-                <strong>Analysis could not be completed.</strong>
-                <br>
-                {{ error }}
-            </div>
-
         </div>
 
+        <!-- ══════════════════════════════════════════════════════════
+             8-STEP WORKFLOW PIPELINE
+             ══════════════════════════════════════════════════════════ -->
+        <section class="page-section" id="pipelineSection" aria-label="Pipeline">
+            <div class="section-container">
+                <div class="section-header-row" data-fade>
+                    <div>
+                        <span class="eyebrow">Computational Sequence</span>
+                        <h2 class="section-title">The Eight-Step Mathematical Pipeline</h2>
+                    </div>
+                    <p class="section-lead">Each stage transforms raw image luminosity into rigorous linear algebraic subspaces.</p>
+                </div>
+
+                <div class="workflow-grid" data-fade>
+                    <!-- Step 01 -->
+                    <div class="workflow-card">
+                        <div class="card-step-row">
+                            <span class="step-num">01</span>
+                            <span class="card-math-tag">A ∈ [0, 1]<sup>m×n</sup></span>
+                        </div>
+                        <h3 class="card-title">Image to Matrix</h3>
+                        <p class="card-body">Converts image pixels into grayscale intensity values normalized onto the real unit interval [0, 1].</p>
+                        <div class="card-footer-tag">Resized to 64 × 64 floats</div>
+                    </div>
+
+                    <!-- Step 02 -->
+                    <div class="workflow-card">
+                        <div class="card-step-row">
+                            <span class="step-num">02</span>
+                            <span class="card-math-tag">ρ(A) ≤ min(m,n)</span>
+                        </div>
+                        <h3 class="card-title">Matrix Rank</h3>
+                        <p class="card-body">Determines the number of linearly independent row and column vectors using SVD singular value thresholds.</p>
+                        <div class="card-footer-tag">Rank vs dimension analysis</div>
+                    </div>
+
+                    <!-- Step 03 -->
+                    <div class="workflow-card">
+                        <div class="card-step-row">
+                            <span class="step-num">03</span>
+                            <span class="card-math-tag">A<sup>T</sup>A v<sub>i</sub> = λ<sub>i</sub> v<sub>i</sub></span>
+                        </div>
+                        <h3 class="card-title">Eigen Analysis</h3>
+                        <p class="card-body">Forms symmetric positive semi-definite matrix A<sup>T</sup>A and extracts real eigenvalues and orthogonal eigenvectors.</p>
+                        <div class="card-footer-tag">Spectral decomposition</div>
+                    </div>
+
+                    <!-- Step 04 -->
+                    <div class="workflow-card">
+                        <div class="card-step-row">
+                            <span class="step-num">04</span>
+                            <span class="card-math-tag">V<sub>k</sub> = [v<sub>1</sub>…v<sub>k</sub>]</span>
+                        </div>
+                        <h3 class="card-title">Component Selection</h3>
+                        <p class="card-body">Sorts eigenvalues in descending order and retains the top k principal eigen-directions capturing maximal variance.</p>
+                        <div class="card-footer-tag">Dimensionality reduction</div>
+                    </div>
+
+                    <!-- Step 05 -->
+                    <div class="workflow-card">
+                        <div class="card-step-row">
+                            <span class="step-num">05</span>
+                            <span class="card-math-tag">P = A · V<sub>k</sub></span>
+                        </div>
+                        <h3 class="card-title">Matrix Projection</h3>
+                        <p class="card-body">Projects original 64-dimensional row space onto the optimal k-dimensional subspace spanned by V<sub>k</sub>.</p>
+                        <div class="card-footer-tag">(64 × 64)(64 × k) = 64 × k</div>
+                    </div>
+
+                    <!-- Step 06 -->
+                    <div class="workflow-card">
+                        <div class="card-step-row">
+                            <span class="step-num">06</span>
+                            <span class="card-math-tag">A<sub>k</sub> = P · V<sub>k</sub><sup>T</sup></span>
+                        </div>
+                        <h3 class="card-title">Reconstruction</h3>
+                        <p class="card-body">Re-synthesizes low-rank matrix approximation A<sub>k</sub> back into the full 64 × 64 pixel domain.</p>
+                        <div class="card-footer-tag">(64 × k)(k × 64) = 64 × 64</div>
+                    </div>
+
+                    <!-- Step 07 -->
+                    <div class="workflow-card">
+                        <div class="card-step-row">
+                            <span class="step-num">07</span>
+                            <span class="card-math-tag">‖A − A<sub>k</sub>‖<sub>F</sub></span>
+                        </div>
+                        <h3 class="card-title">Error Analysis</h3>
+                        <p class="card-body">Computes Frobenius matrix norm difference and relative error percentage between original and reconstruction.</p>
+                        <div class="card-footer-tag">Relative &amp; absolute metric</div>
+                    </div>
+
+                    <!-- Step 08 -->
+                    <div class="workflow-card">
+                        <div class="card-step-row">
+                            <span class="step-num">08</span>
+                            <span class="card-math-tag">Energy Compaction</span>
+                        </div>
+                        <h3 class="card-title">Interpretation</h3>
+                        <p class="card-body">Evaluates energy retention, spectral roll-off, and low-rank compression efficiency for viva and reporting.</p>
+                        <div class="card-footer-tag">Optimal rank-k approximation</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════
+             ERROR NOTICE
+             ══════════════════════════════════════════════════════════ -->
+        {% if error %}
+        <div class="page-section" style="padding-top: 0; padding-bottom: 0;">
+            <div class="section-container">
+                <div class="error-notice" role="alert">
+                    <div class="error-icon" aria-hidden="true">!</div>
+                    <div>
+                        <strong style="color: var(--ivory); font-size: 14px; display: block; margin-bottom: 4px;">Analysis Validation Notice</strong>
+                        <p style="margin: 0; color: var(--ivory-muted);">{{ error }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endif %}
 
-
-        <!-- =========================================================
-             ANALYSIS CONTROLS
-        ========================================================== -->
-        <section class="control-panel">
-
-            <div class="control-header">
-
-                <div>
-                    <span class="section-eyebrow">
-                        RUN EXPERIMENT
-                    </span>
-
-                    <h2>
-                        Configure the eigen-feature analysis
-                    </h2>
-                </div>
-
-                <span class="lab-chip">
-                    64 × 64 / NORMALIZED
-                </span>
-
-            </div>
-
-
-            <form method="post" enctype="multipart/form-data" class="upload-form" id="analysisForm">
-
-                {% csrf_token %}
-
-                <input type="hidden" name="image_name" value="{{ image_name }}">
-
-
-                <!-- IMAGE UPLOAD -->
-                <label class="drop-zone" for="imageInput">
-
-                    <input type="file" name="image" accept="image/*" id="imageInput">
-
-                    <span class="upload-icon">
-                        ↑
-                    </span>
-
-                    <span class="drop-title">
-                        Choose an image
-                    </span>
-
-                    <span class="drop-subtitle" id="fileName">
-                        PNG, JPG, JPEG or other image
-                    </span>
-
-                    <span class="drop-action">
-                        Browse files
-                    </span>
-
-                </label>
-
-
-                <!-- K CONTROL -->
-                <label class="k-control">
-
-                    <span class="control-label">
-
-                        <span>
-                            Dominant components
-                        </span>
-
-                        <output id="kValue">
-                            {{ result.selected_k|default:10 }}
-                        </output>
-
-                    </span>
-
-
-                    <input type="range" name="k" min="1" max="{{ result.max_k|default:64 }}"
-                        value="{{ result.selected_k|default:10 }}" id="kRange" list="kMarks">
-
-
-                    <div class="range-scale">
-
-                        <span>1</span>
-                        <span>5</span>
-                        <span>10</span>
-                        <span>20</span>
-                        <span>32</span>
-                        <span>64</span>
-
+        <!-- ══════════════════════════════════════════════════════════
+             UPLOAD & CONTROL PANEL
+             ══════════════════════════════════════════════════════════ -->
+        <section class="page-section" id="controlPanel" aria-label="Upload and analyze">
+            <div class="section-container">
+                <div class="control-panel-wrap" data-fade>
+                    <div class="control-panel-header">
+                        <div>
+                            <span class="eyebrow" style="margin-bottom: 8px;">Image Ingestion &amp; Hyperparameters</span>
+                            <h2 class="panel-title">Upload Image &amp; Configure Eigenspace</h2>
+                        </div>
+                        <div class="badge-group">
+                            <span class="status-badge">NumPy Accelerated</span>
+                            <span class="status-badge gold">Interactive v2.4</span>
+                        </div>
                     </div>
 
+                    <form id="analysisForm" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="image_name" id="imageNameInput" value="{{ image_name|default:'' }}">
 
-                    <datalist id="kMarks">
-                        <option value="1"></option>
-                        <option value="5"></option>
-                        <option value="10"></option>
-                        <option value="20"></option>
-                        <option value="32"></option>
-                        <option value="64"></option>
-                    </datalist>
+                        <div class="control-panel-body">
+                            <!-- Dropzone Column -->
+                            <div>
+                                <span class="form-col-label">1. Image Selection</span>
+                                <div class="dropzone {% if image_name %}has-file{% endif %}" id="dropZone">
+                                    <input type="file" id="imageInput" name="image" accept="image/*" aria-label="Upload image file">
 
+                                    <div class="upload-icon">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="17 8 12 3 7 8"/>
+                                            <line x1="12" y1="3" x2="12" y2="15"/>
+                                        </svg>
+                                    </div>
 
-                    <span class="range-help">
-                        Higher k preserves more image structure and reduces reconstruction error.
-                    </span>
+                                    <h4 class="dropzone-title">
+                                        {% if image_name %}
+                                        Selected: <span class="file-name" id="fileName">{{ image_name }}</span>
+                                        {% else %}
+                                        Drag &amp; drop or <span style="color: var(--gold); text-decoration: underline;">browse files</span>
+                                        {% endif %}
+                                    </h4>
 
-                </label>
+                                    <p class="dropzone-sub" id="fileSubtext">
+                                        {% if image_name %}
+                                        Previously uploaded image is ready. Upload a new file or adjust k below.
+                                        {% else %}
+                                        PNG, JPG, JPEG, WEBP · Normalized to 64 × 64 pixels
+                                        {% endif %}
+                                    </p>
 
+                                    {% if result.original_image %}
+                                    <div class="file-preview" id="previewStrip">
+                                        <span style="font-size: 10px; letter-spacing: 0.08em;">ACTIVE SOURCE</span>
+                                        <img src="{{ result.original_image }}" alt="Uploaded preview" class="preview-thumb" id="previewThumb">
+                                    </div>
+                                    {% else %}
+                                    <div class="file-preview" id="previewStrip" style="display: none;">
+                                        <span style="font-size: 10px; letter-spacing: 0.08em;">ACTIVE SOURCE</span>
+                                        <img src="" alt="Uploaded preview" class="preview-thumb" id="previewThumb">
+                                    </div>
+                                    {% endif %}
+                                </div>
 
-                <!-- RUN BUTTON -->
-                <button type="submit" class="run-button">
+                                <div class="demo-row">
+                                    <span>No file ready?</span>
+                                    <a href="/?demo=1#resultsSection" class="demo-btn">⚡ Load Demo Sample</a>
+                                </div>
+                            </div>
 
-                    <span>
-                        Run Analysis
-                    </span>
+                            <!-- K-Control Column -->
+                            <div>
+                                <span class="form-col-label">2. Dominant Eigen-Components (k)</span>
 
-                    <b>
-                        ↗
-                    </b>
+                                <div class="slider-card">
+                                    <div class="k-display-row">
+                                        <div class="k-label-block">
+                                            <h4>Subspace Rank Dimension</h4>
+                                            <p>Controls the number of eigenvectors in V<sub>k</sub></p>
+                                        </div>
+                                        <div class="k-badge">
+                                            <span class="k-prefix">k =</span>
+                                            <span id="kValue">{{ result.selected_k|default:"8" }}</span>
+                                        </div>
+                                    </div>
 
-                </button>
+                                    <input type="range" id="kRange" name="k" min="1" max="{{ result.max_k|default:64 }}" value="{{ result.selected_k|default:8 }}" class="eigen-slider" aria-label="Select k value">
+                                    <div class="slider-ticks">
+                                        <span>k = 1</span>
+                                        <span>k = 16</span>
+                                        <span>k = 32</span>
+                                        <span>k = 48</span>
+                                        <span>k = {{ result.max_k|default:64 }}</span>
+                                    </div>
 
-            </form>
+                                    <div class="presets-row">
+                                        <span class="presets-label">Quick:</span>
+                                        <button type="button" class="preset-btn" data-k="1">1</button>
+                                        <button type="button" class="preset-btn" data-k="4">4</button>
+                                        <button type="button" class="preset-btn" data-k="8">8</button>
+                                        <button type="button" class="preset-btn" data-k="16">16</button>
+                                        <button type="button" class="preset-btn" data-k="32">32</button>
+                                        <button type="button" class="preset-btn" data-k="64">64</button>
+                                    </div>
 
+                                    <div class="k-info-note">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; color:var(--gold)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                        Lower k yields higher compression with blur; higher k yields closer reconstruction to original A.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommended Image Types for Mathematical Decomposition -->
+                        <div class="guidance-wrap">
+                            <div class="guidance-header">
+                                <div class="guidance-title">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold)"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                    <span>Which Images Produce the Best Eigen-Analysis Results?</span>
+                                </div>
+                                <span class="guidance-badge">Matrix Guide</span>
+                            </div>
+                            <div class="guidance-grid">
+                                <div class="guidance-card">
+                                    <div class="guidance-card-top">
+                                        <span class="guidance-icon">👤</span>
+                                        <span class="guidance-name">Faces &amp; Portraits (Eigenfaces)</span>
+                                    </div>
+                                    <p class="guidance-desc">Bilateral symmetry and aligned features form classic PCA eigenspaces. Low k captures archetype; high k recovers details.</p>
+                                    <div class="guidance-why">Best for: low-rank approximation visual test</div>
+                                </div>
+                                <div class="guidance-card">
+                                    <div class="guidance-card-top">
+                                        <span class="guidance-icon">🛡️</span>
+                                        <span class="guidance-name">Emblems, Crests &amp; Logos</span>
+                                    </div>
+                                    <p class="guidance-desc">High contrast between emblem and background creates clean singular values and dramatic edge reconstruction.</p>
+                                    <div class="guidance-why">Best for: sharp Frobenius error reduction</div>
+                                </div>
+                                <div class="guidance-card">
+                                    <div class="guidance-card-top">
+                                        <span class="guidance-icon">🏛️</span>
+                                        <span class="guidance-name">Architecture &amp; Geometric Grids</span>
+                                    </div>
+                                    <p class="guidance-desc">Orthogonal columns and horizontal lines align cleanly with eigenvectors of covariance matrix A<sup>T</sup>A.</p>
+                                    <div class="guidance-why">Best for: orthogonal basis projection</div>
+                                </div>
+                                <div class="guidance-card">
+                                    <div class="guidance-card-top">
+                                        <span class="guidance-icon">🔬</span>
+                                        <span class="guidance-name">Textures &amp; Natural Gradients</span>
+                                    </div>
+                                    <p class="guidance-desc">Smooth spectral roll-off demonstrates why top-k components hold 90%+ energy in the scree plot.</p>
+                                    <div class="guidance-why">Best for: eigenvalue decay &amp; energy curves</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="submit-wrap">
+                            <button type="submit" class="submit-btn" id="runBtn">
+                                <span class="btn-spinner" aria-hidden="true"></span>
+                                <span class="btn-label">Run Eigenspace Analysis</span>
+                                <span class="btn-k-tag">k = <strong class="run-k-echo">{{ result.selected_k|default:"8" }}</strong></span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </section>
 
-
+        <!-- ══════════════════════════════════════════════════════════
+             RESULTS DASHBOARD
+             ══════════════════════════════════════════════════════════ -->
         {% if result %}
+        <section class="results-section" id="resultsSection" aria-label="Analysis results">
 
-
-        <!-- =========================================================
-             RESULTS HEADER
-        ========================================================== -->
-        <section class="result-header">
-
-            <div>
-
-                <span class="section-eyebrow">
-                    ANALYSIS RESULT
-                </span>
-
-                <h2>
-                    Computed image profile
-                </h2>
-
+            <!-- Results Header -->
+            <div class="results-header" data-fade>
+                <div>
+                    <span class="eyebrow">Computation Complete</span>
+                    <h2 class="results-title">Analysis Dashboard · k = {{ result.selected_k }}</h2>
+                    <p class="results-sub">Numerical decomposition, low-rank projection, and reconstruction error metrics.</p>
+                </div>
+                <div class="results-meta-badges">
+                    <div class="meta-badge">
+                        <span>Orthogonality</span><br>
+                        <span class="val">{{ result.orthogonality_status }}</span>
+                    </div>
+                    <div class="meta-badge">
+                        <span>Matrix Rank</span><br>
+                        <span class="val">{{ result.rank }} / {{ result.matrix_cols }}</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="result-status">
+            <!-- Metric Cards -->
+            <div class="metrics-grid" data-fade>
+                <div class="metric-card">
+                    <div class="metric-icon-row">
+                        <span class="metric-eyebrow">Dimensions</span>
+                        <span class="metric-symbol">⊞</span>
+                    </div>
+                    <div class="metric-value">{{ result.matrix_shape }}</div>
+                    <div class="metric-desc">Normalized Grayscale Matrix A</div>
+                </div>
 
-                <span class="status-dot"></span>
+                <div class="metric-card">
+                    <div class="metric-icon-row">
+                        <span class="metric-eyebrow">Matrix Rank</span>
+                        <span class="metric-symbol">ρ</span>
+                    </div>
+                    <div class="metric-value">{{ result.rank }}</div>
+                    <div class="metric-desc">Linearly Independent Columns</div>
+                </div>
 
-                Analysis complete
+                <div class="metric-card metric-highlight">
+                    <div class="metric-icon-row">
+                        <span class="metric-eyebrow">Components</span>
+                        <span class="metric-symbol" style="font-family:var(--serif); font-style:italic;">V<sub>k</sub></span>
+                    </div>
+                    <div class="metric-value gold">{{ result.selected_k }}</div>
+                    <div class="metric-desc">Retained Dominant Eigen-Axes</div>
+                </div>
 
+                <div class="metric-card">
+                    <div class="metric-icon-row">
+                        <span class="metric-eyebrow">Frobenius Error</span>
+                        <span class="metric-symbol" style="font-size:11px;">‖E‖<sub>F</sub></span>
+                    </div>
+                    <div class="metric-value">{{ result.frobenius_error|floatformat:4 }}</div>
+                    <div class="metric-desc">Absolute Residual Norm ‖A − A<sub>k</sub>‖<sub>F</sub></div>
+                </div>
+
+                <div class="metric-card {% if result.relative_error < 15 %}metric-highlight{% endif %}">
+                    <div class="metric-icon-row">
+                        <span class="metric-eyebrow">Relative Error</span>
+                        <span class="metric-symbol">%</span>
+                    </div>
+                    <div class="metric-value {% if result.relative_error < 15 %}success{% endif %}">{{ result.relative_error|floatformat:2 }}%</div>
+                    <div class="metric-desc">Reconstruction Error Ratio</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon-row">
+                        <span class="metric-eyebrow">Orthogonality</span>
+                        <span class="metric-symbol" style="font-size:11px;">I<sub>k</sub></span>
+                    </div>
+                    <div class="metric-value gold" style="font-size: 14px; line-height: 1.3;">‖V<sub>k</sub><sup>T</sup>V<sub>k</sub> − I‖ ≈ 0</div>
+                    <div class="metric-desc">Max Deviation: {{ result.orthogonality_error|floatformat:6 }}</div>
+                </div>
             </div>
 
-        </section>
-
-
-        <!-- =========================================================
-             SUMMARY METRICS
-        ========================================================== -->
-        <section class="summary-grid" aria-label="Key computed results">
-
-            <article class="metric-card feature">
-
-                <span>Matrix size</span>
-
-                <strong>
-                    {{ result.matrix_shape }}
-                </strong>
-
-                <small>
-                    normalized grayscale matrix A
-                </small>
-
-            </article>
-
-
-            <article class="metric-card">
-
-                <span>Rank</span>
-
-                <strong>
-                    {{ result.rank }}
-                </strong>
-
-                <small>
-                    linearly independent structure
-                </small>
-
-            </article>
-
-
-            <article class="metric-card">
-
-                <span>Selected k</span>
-
-                <strong>
-                    {{ result.selected_k }}
-                </strong>
-
-                <small>
-                    dominant eigen-components
-                </small>
-
-            </article>
-
-
-            <article class="metric-card">
-
-                <span>Relative error</span>
-
-                <strong>
-                    {{ result.relative_error|floatformat:4 }}%
-                </strong>
-
-                <small>
-                    reconstruction difference
-                </small>
-
-            </article>
-
-
-            <article class="metric-card">
-
-                <span>Min pixel</span>
-
-                <strong>
-                    {{ result.matrix_min|floatformat:4 }}
-                </strong>
-
-                <small>
-                    normalized intensity
-                </small>
-
-            </article>
-
-
-            <article class="metric-card">
-
-                <span>Max pixel</span>
-
-                <strong>
-                    {{ result.matrix_max|floatformat:4 }}
-                </strong>
-
-                <small>
-                    normalized intensity
-                </small>
-
-            </article>
-
-
-            <article class="metric-card">
-
-                <span>Frobenius error</span>
-
-                <strong>
-                    {{ result.frobenius_error|floatformat:4 }}
-                </strong>
-
-                <small>
-                    ‖A − A<sub>k</sub>‖<sub>F</sub>
-                </small>
-
-            </article>
-
-
-            <article class="metric-card verified">
-
-                <span>Orthogonality</span>
-
-                <strong>
-                    {{ result.orthogonality_status }}
-                </strong>
-
-                <small>
-                    V<sub>k</sub><sup>T</sup>V<sub>k</sub> ≈ I<sub>k</sub>
-                </small>
-
-            </article>
-
-        </section>
-
-
-        <!-- =========================================================
-             IMAGE COMPARISON
-        ========================================================== -->
-        <section class="image-comparison">
-
-            <figure class="image-card">
-
-                <div class="image-card-header">
-
-                    <div class="image-title">
-
-                        <span class="image-badge">
-                            A
-                        </span>
-
-                        <strong>
-                            Original matrix
-                        </strong>
-
-                    </div>
-
-                    <span>
-                        64 × 64 grayscale
-                    </span>
-
-                </div>
-
-
-                <div class="image-frame">
-
-                    <img src="{{ result.original_image }}" alt="Original grayscale image">
-
-                </div>
-
-
-                <figcaption>
-                    Input image after grayscale conversion,
-                    resizing and normalization.
-                </figcaption>
-
-            </figure>
-
-
-            <figure class="image-card reconstructed">
-
-                <div class="image-card-header">
-
-                    <div class="image-title">
-
-                        <span class="image-badge">
-                            A<sub>k</sub>
-                        </span>
-
-                        <strong>
-                            Reconstructed matrix
-                        </strong>
-
-                    </div>
-
-                    <span>
-                        k = {{ result.selected_k }}
-                    </span>
-
-                </div>
-
-
-                <div class="image-frame">
-
-                    <img src="{{ result.reconstructed_image }}" alt="Reconstructed image">
-
-                </div>
-
-
-                <figcaption>
-                    Approximation rebuilt from the selected
-                    dominant eigen-components.
-                </figcaption>
-
-            </figure>
-
-        </section>
-
-
-        <!-- =========================================================
-             MATHEMATICAL ANALYSIS
-        ========================================================== -->
-        <div class="analysis-divider">
-
-            <span>
-                MATHEMATICAL BREAKDOWN
-            </span>
-
-            <i></i>
-
-        </div>
-
-
-        <section class="analysis-layout">
-
-
-            <!-- =====================================================
-                 01 MATRIX
-            ====================================================== -->
-            <article class="panel wide-panel math-card">
-
-                <div class="step-number">
-                    01
-                </div>
-
-                <div class="panel-heading">
-
+            <!-- Image Comparison -->
+            <div class="comparison-section" data-fade>
+                <div class="comparison-header">
                     <div>
+                        <span class="eyebrow" style="margin-bottom:6px;">Visual Reconstruction</span>
+                        <h3 class="comparison-title">Original Matrix A vs Reconstructed Matrix A<sub>k</sub></h3>
+                    </div>
+                    <div class="comparison-meta-pills">
+                        <span class="meta-pill">Normalized Pixel Domain: [0, 1]</span>
+                        <span class="meta-pill gold">Retained Subspace: k = {{ result.selected_k }}</span>
+                    </div>
+                </div>
 
-                        <span class="mini-label">
-                            FOUNDATION
-                        </span>
-
-                        <h2>
-                            Matrix Representation
-                        </h2>
-
+                <div class="comparison-body">
+                    <!-- Original -->
+                    <div class="image-card">
+                        <div class="image-card-top">
+                            <span class="image-badge">Original Matrix</span>
+                            <span class="image-tag">A ∈ ℝ<sup>64×64</sup></span>
+                        </div>
+                        <div class="image-frame">
+                            <img src="{{ result.original_image }}" alt="Original Grayscale Matrix A" class="matrix-img">
+                        </div>
+                        <div class="image-card-footer">
+                            <div class="img-stat">
+                                <span>Shape</span>
+                                <strong>{{ result.matrix_shape }}</strong>
+                            </div>
+                            <div class="img-stat">
+                                <span>Pixel Range</span>
+                                <strong>[{{ result.matrix_min|floatformat:3 }}, {{ result.matrix_max|floatformat:3 }}]</strong>
+                            </div>
+                        </div>
                     </div>
 
-                    <p>
-                        Image data becomes a numerical matrix.
-                    </p>
-
-                </div>
-
-
-                <div class="formula">
-                    A ∈ R<sup>64 × 64</sup>,
-                    &nbsp; 0 ≤ A[i,j] ≤ 1
-                </div>
-
-
-                <p class="result-line">
-                    A dimensions =
-                    <b>{{ result.matrix_shape }}</b>
-                </p>
-
-
-                <p class="result-line">
-                    Pixel range =
-                    <b>
-                        [
-                        {{ result.matrix_min|floatformat:4 }},
-                        {{ result.matrix_max|floatformat:4 }}
-                        ]
-                    </b>
-
-                    · range check =
-                    <b>
-                        {{ result.matrix_normalized|yesno:"Passed,Failed" }}
-                    </b>
-                </p>
-
-
-                <p class="meaning">
-                    The uploaded image is converted to grayscale,
-                    resized to 64 × 64, and normalized so every
-                    entry in A is a real number between 0 and 1.
-                </p>
-
-            </article>
-
-
-            <!-- =====================================================
-                 02 RANK
-            ====================================================== -->
-            <article class="panel math-card">
-
-                <div class="step-number">
-                    02
-                </div>
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            STRUCTURE
-                        </span>
-
-                        <h2>
-                            Matrix Rank
-                        </h2>
-
+                    <!-- Divider -->
+                    <div class="comparison-divider">
+                        <div class="divider-icon-btn">⇄</div>
+                        <div class="divider-label">Low-Rank Projection &amp; Synthesis</div>
+                        <div class="error-pill">{{ result.relative_error|floatformat:2 }}% error</div>
                     </div>
 
-                    <p>
-                        Rank is not the selected k value.
-                    </p>
-
+                    <!-- Reconstructed -->
+                    <div class="image-card">
+                        <div class="image-card-top">
+                            <span class="image-badge active">Reconstructed Matrix</span>
+                            <span class="image-tag">A<sub>k</sub> ∈ ℝ<sup>64×64</sup></span>
+                        </div>
+                        <div class="image-frame">
+                            <img src="{{ result.reconstructed_image }}" alt="Reconstructed Image A_k" class="matrix-img">
+                        </div>
+                        <div class="image-card-footer">
+                            <div class="img-stat">
+                                <span>Components Used</span>
+                                <strong class="gold">k = {{ result.selected_k }}</strong>
+                            </div>
+                            <div class="img-stat">
+                                <span>Frobenius Error</span>
+                                <strong>{{ result.frobenius_error|floatformat:4 }}</strong>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-
-                <div class="formula">
-                    rank(A)
-                </div>
-
-
-                <div class="big-result">
-
-                    rank(A) =
-                    <b>{{ result.rank }}</b>
-
-                </div>
-
-
-                <p class="meaning">
-                    The rank represents the number of linearly
-                    independent rows or columns of the image matrix.
-                </p>
-
-            </article>
-
-
-            <!-- =====================================================
-                 03 EIGEN
-            ====================================================== -->
-            <article class="panel math-card">
-
-                <div class="step-number">
-                    03
-                </div>
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            SPECTRAL ANALYSIS
-                        </span>
-
-                        <h2>
-                            Eigenvalue / Eigenvector Analysis
-                        </h2>
-
+            <!-- ══════════════════════════════════════════════════════════
+                 SARVAM AI MATHEMATICAL INTELLIGENCE & VIVA DEFENSE
+                 ══════════════════════════════════════════════════════════ -->
+            {% if sarvam_insight and sarvam_insight.available %}
+            <div class="sarvam-ai-section" data-fade>
+                <div class="sarvam-ai-card">
+                    <div class="sarvam-header">
+                        <div class="sarvam-brand-group">
+                            <span class="sarvam-pulse-dot" aria-hidden="true"></span>
+                            <div>
+                                <span class="sarvam-eyebrow">Sarvam AI · 105B Reasoning Model</span>
+                                <h3 class="sarvam-title">Mathematical Interpretation &amp; Viva Defense</h3>
+                            </div>
+                        </div>
+                        <div class="sarvam-badges">
+                            <span class="sarvam-model-pill">{{ sarvam_insight.model }}</span>
+                            <span class="sarvam-status-pill">Active Intelligence</span>
+                        </div>
                     </div>
 
-                    <p>
-                        Eigenpairs are calculated from the symmetric matrix C.
-                    </p>
+                    <div class="sarvam-body" 
+                         id="sarvamAiContainer"
+                         data-rows="{{ result.matrix_rows|default:64 }}"
+                         data-cols="{{ result.matrix_cols|default:64 }}"
+                         data-rank="{{ result.rank|default:34 }}"
+                         data-k="{{ result.selected_k|default:16 }}"
+                         data-frob="{{ result.frobenius_error|default:0.0184 }}"
+                         data-rel="{{ result.relative_error|default:0.03 }}">
 
-                </div>
+                        <!-- Language Selection & Translation Bar -->
+                        <div class="sarvam-lang-toolbar">
+                            <div class="sarvam-lang-left">
+                                <span class="sarvam-lang-label">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                    Indic Language:
+                                </span>
+                                <div class="sarvam-lang-pills" id="sarvamLangPills">
+                                    <button type="button" class="lang-pill active" data-lang="English">English</button>
+                                    <button type="button" class="lang-pill" data-lang="Hindi">हिन्दी (Hindi)</button>
+                                    <button type="button" class="lang-pill" data-lang="Kannada">ಕನ್ನಡ (Kannada)</button>
+                                    <button type="button" class="lang-pill" data-lang="Tamil">தமிழ் (Tamil)</button>
+                                    <button type="button" class="lang-pill" data-lang="Telugu">తెలుగు (Telugu)</button>
+                                    <button type="button" class="lang-pill" data-lang="Marathi">मराठी (Marathi)</button>
+                                    <button type="button" class="lang-pill" data-lang="Bengali">বাংলা (Bengali)</button>
+                                    <button type="button" class="lang-pill" data-lang="Gujarati">ગુજરાતી (Gujarati)</button>
+                                    <button type="button" class="lang-pill" data-lang="Malayalam">മലയാളം (Malayalam)</button>
+                                </div>
+                            </div>
+                            <button type="button" class="sarvam-translate-btn" id="sarvamTranslateBtn">
+                                <span>Translate Synthesis</span>
+                                <span class="translate-spinner" aria-hidden="true"></span>
+                            </button>
+                        </div>
 
+                        <!-- Executive Linear Algebra Interpretation -->
+                        <div class="sarvam-interpretation-box">
+                            <div class="sarvam-box-label">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold)"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                <span>Executive Subspace Synthesis</span>
+                                <span class="lang-indicator-badge" id="synthesisLangBadge">EN</span>
+                            </div>
+                            <p class="sarvam-interpretation-text" id="sarvamInterpretationText">{{ sarvam_insight.interpretation }}</p>
+                            {% if sarvam_insight.energy_assessment %}
+                            <div class="sarvam-energy-note" id="sarvamEnergyNote">
+                                <strong>Energy Retained:</strong> <span id="sarvamEnergyText">{{ sarvam_insight.energy_assessment }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
 
-                <div class="formula">
-                    C = A<sup>T</sup>A
-                </div>
+                        <!-- Viva Defense Questions & Answers -->
+                        {% if sarvam_insight.viva_qa %}
+                        <div class="sarvam-viva-block">
+                            <div class="sarvam-box-label">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold)"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                <span>Tailored Viva Defense Questions &amp; Proofs</span>
+                            </div>
 
-
-                <div class="formula">
-                    Cv = λv
-                </div>
-
-
-                <p class="result-line">
-                    C dimensions =
-                    <b>{{ result.covariance_shape }}</b>
-                </p>
-
-
-                <p class="result-line">
-                    Sorted descending =
-                    <b>
-                        {{ result.eigenvalues_sorted|yesno:"Yes,No" }}
-                    </b>
-
-                    · nonnegative =
-                    <b>
-                        {{ result.eigenvalues_nonnegative|yesno:"Yes,No" }}
-                    </b>
-                </p>
-
-
-                <p class="result-line">
-                    Dominant eigenvalues:
-                    <b>
-                        {{ result.dominant_eigenvalues|join:', ' }}
-                    </b>
-                </p>
-
-
-                <p class="meaning">
-                    Larger eigenvalues identify stronger vector-space
-                    directions in the image matrix.
-                </p>
-
-            </article>
-
-
-            <!-- =====================================================
-                 EIGENVECTOR PREVIEW
-            ====================================================== -->
-            <article class="panel wide-panel eigenvector-panel">
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            DOMINANT DIRECTIONS
-                        </span>
-
-                        <h2>
-                            Eigenvector Preview
-                        </h2>
-
-                    </div>
-
-                    <p>
-                        First 10 entries of the first
-                        5 dominant eigenvectors.
-                    </p>
-
-                </div>
-
-
-                <div class="formula">
-                    C = A<sup>T</sup>A
-                    &nbsp;&nbsp; | &nbsp;&nbsp;
-                    Cv = λv
-                </div>
-
-
-                <div class="inline-stat">
-
-                    V<sub>5</sub> dimensions =
-                    <b>{{ result.dominant_eigenvector_shape }}</b>
-
-                </div>
-
-
-                <p class="meaning">
-
-                    Each eigenvector represents an orthogonal direction
-                    in the vector space associated with C = A<sup>T</sup>A.
-                    The eigenvectors corresponding to the largest
-                    eigenvalues are selected as dominant components.
-                    Each complete eigenvector v<sub>i</sub> contains
-                    64 entries; this table shows the first 10.
-
-                </p>
-
-
-                <div class="table-scroll">
-
-                    <table class="matrix-table eigenvector-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    entry
-                                </th>
-
-                                <th>v<sub>1</sub></th>
-                                <th>v<sub>2</sub></th>
-                                <th>v<sub>3</sub></th>
-                                <th>v<sub>4</sub></th>
-                                <th>v<sub>5</sub></th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {% for row in result.dominant_eigenvectors_preview %}
-
-                            <tr>
-
-                                <th>
-                                    row {{ forloop.counter }}
-                                </th>
-
-                                {% for value in row %}
-
-                                <td>
-                                    {{ value }}
-                                </td>
-
+                            <div class="sarvam-qna-grid" id="sarvamQnaGrid">
+                                {% for item in sarvam_insight.viva_qa %}
+                                <div class="sarvam-qna-card">
+                                    <div class="qna-q-row">
+                                        <span class="qna-q-badge">Q{{ forloop.counter }}</span>
+                                        <h4 class="qna-question">{{ item.question }}</h4>
+                                    </div>
+                                    <div class="qna-a-box">
+                                        <span class="qna-a-label">Defensible Answer:</span>
+                                        <p class="qna-answer">{{ item.answer }}</p>
+                                    </div>
+                                </div>
                                 {% endfor %}
-
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </article>
-
-
-            <!-- =====================================================
-                 04 COMPONENT
-            ====================================================== -->
-            <article class="panel math-card">
-
-                <div class="step-number">
-                    04
-                </div>
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            REDUCTION
-                        </span>
-
-                        <h2>
-                            Component Selection
-                        </h2>
-
-                    </div>
-
-                    <p>
-                        The first k dominant eigenvectors are selected.
-                    </p>
-
-                </div>
-
-
-                <div class="formula">
-                    V<sub>k</sub> =
-                    [v<sub>1</sub> v<sub>2</sub> ... v<sub>k</sub>]
-                </div>
-
-
-                <div class="big-result">
-
-                    k =
-                    <b>{{ result.selected_k }}</b>
-
-                </div>
-
-
-                <p class="result-line">
-
-                    V<sub>k</sub> dimensions =
-                    <b>{{ result.vk_shape }}</b>
-
-                </p>
-
-
-                <p class="meaning">
-                    These eigenvectors form the dominant subspace
-                    used to approximate the image.
-                </p>
-
-            </article>
-
-
-            <!-- =====================================================
-                 05 PROJECTION
-            ====================================================== -->
-            <article class="panel math-card">
-
-                <div class="step-number">
-                    05
-                </div>
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            PROJECTION
-                        </span>
-
-                        <h2>
-                            Projection
-                        </h2>
-
-                    </div>
-
-                    <p>
-                        The image matrix is projected into
-                        the selected subspace.
-                    </p>
-
-                </div>
-
-
-                <div class="formula">
-                    P = AV<sub>k</sub>
-                </div>
-
-
-                <div class="dimension-box">
-                    {{ result.dimension_equation }}
-                </div>
-
-
-                <p class="result-line">
-
-                    A = {{ result.matrix_shape }}
-                    ·
-                    V<sub>k</sub> = {{ result.vk_shape }}
-                    ·
-                    P = {{ result.projection_shape }}
-
-                </p>
-
-
-                <p class="meaning">
-                    Projection expresses A using the coordinate
-                    directions in V<sub>k</sub>.
-                </p>
-
-            </article>
-
-
-            <!-- =====================================================
-                 06 RECONSTRUCTION
-            ====================================================== -->
-            <article class="panel math-card">
-
-                <div class="step-number">
-                    06
-                </div>
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            REBUILD
-                        </span>
-
-                        <h2>
-                            Reconstruction
-                        </h2>
-
-                    </div>
-
-                    <p>
-                        The approximation is rebuilt
-                        from projected data.
-                    </p>
-
-                </div>
-
-
-                <div class="formula">
-                    A<sub>k</sub> =
-                    PV<sub>k</sub><sup>T</sup>
-                </div>
-
-
-                <div class="dimension-box">
-                    {{ result.reconstruction_dimension_equation }}
-                </div>
-
-
-                <p class="result-line">
-
-                    P = {{ result.projection_shape }}
-                    ·
-                    V<sub>k</sub><sup>T</sup> =
-                    {{ result.vk_transpose_shape }}
-                    ·
-                    A<sub>k</sub> =
-                    {{ result.reconstruction_shape }}
-
-                </p>
-
-
-                <p class="meaning">
-                    A<sub>k</sub> is an approximation of A
-                    using only k dominant eigen-components.
-                </p>
-
-            </article>
-
-
-            <!-- =====================================================
-                 07 ERROR
-            ====================================================== -->
-            <article class="panel wide-panel error-card">
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            ACCURACY
-                        </span>
-
-                        <h2>
-                            07 · Error Analysis
-                        </h2>
-
-                    </div>
-
-                    <p>
-                        Original matrix and reconstructed
-                        matrix are compared.
-                    </p>
-
-                </div>
-
-
-                <div class="error-grid">
-
-                    <div>
-
-                        <span>
-                            Absolute
-                        </span>
-
-                        <div class="formula">
-                            E<sub>absolute</sub>
-                            =
-                            ‖A − A<sub>k</sub>‖<sub>F</sub>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- ── Sarvam AI Interactive Conversational Chatbot ── -->
+                        <div class="sarvam-chat-console" id="sarvamChatConsole">
+                            <!-- Chatbot Console Header -->
+                            <div class="chat-console-header">
+                                <div class="chat-console-identity">
+                                    <div class="chat-console-avatar">λ</div>
+                                    <div>
+                                        <div class="chat-console-title-row">
+                                            <h4 class="chat-console-title">Sarvam AI · Mathematical Chatbot</h4>
+                                            <span class="chat-live-badge"><span class="chat-live-pulse"></span> Active Session</span>
+                                        </div>
+                                        <div class="chat-console-sub">Multi-turn Linear Algebra &amp; Indic Language Tutor · Responding in <span id="chatActiveLangLabel" class="gold">English</span></div>
+                                    </div>
+                                </div>
+                                <div class="chat-console-tools">
+                                    <button type="button" class="chat-console-clear-btn" id="sarvamClearChatBtn" title="Clear conversation history">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                                        <span>Clear Chat</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Scrollable Chat Stream -->
+                            <div class="sarvam-chat-stream" id="sarvamChatStream" aria-live="polite">
+                                <!-- Initial Welcoming Message -->
+                                <div class="chat-bubble-entry bot-entry">
+                                    <div class="chat-entry-avatar">λ</div>
+                                    <div class="chat-entry-content">
+                                        <div class="chat-bubble-card bot-bubble">
+                                            <p style="margin: 0 0 8px;">
+                                                Namaste! 🙏 I'm <strong>Sarvam AI</strong>, your linear algebra tutor. I have loaded your current decomposed image metrics:
+                                            </p>
+                                            <div class="chat-metrics-pill-grid">
+                                                <span class="pill">Matrix: <code>{{ result.matrix_rows|default:64 }}×{{ result.matrix_cols|default:64 }}</code></span>
+                                                <span class="pill">Rank: <code>ρ(A) = {{ result.rank|default:34 }}</code></span>
+                                                <span class="pill">Subspace: <code>k = {{ result.selected_k|default:16 }}</code></span>
+                                                <span class="pill">Frobenius Error: <code>{{ result.frobenius_error|floatformat:4|default:"0.0184" }}</code></span>
+                                                <span class="pill">Relative Error: <code>{{ result.relative_error|floatformat:2|default:"0.03" }}%</code></span>
+                                            </div>
+                                            <p style="margin: 8px 0 0; font-size: 13px; color: var(--ivory-dim);">
+                                                Ask me any question in <strong>English</strong> or select any Indian language above (<strong>Hindi, Kannada, Tamil, Telugu, Marathi, Bengali, Gujarati, Malayalam</strong>). I preserve standard English mathematical terms in parentheses for your college viva!
+                                            </p>
+                                        </div>
+                                        <div class="chat-entry-meta">Sarvam AI · Initialized</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Suggestion Chips -->
+                            <div class="sarvam-chat-chips" id="sarvamQuickChips">
+                                <span class="chips-title">Quick Prompts:</span>
+                                <button type="button" class="chat-quick-chip" data-q="Why keep k={{ result.selected_k|default:16 }} instead of full rank {{ result.rank|default:34 }}?">Why keep k={{ result.selected_k|default:16 }} vs full rank?</button>
+                                <button type="button" class="chat-quick-chip" data-q="How does the Eckart-Young theorem guarantee this reconstruction error is mathematically optimal?">How does Eckart-Young prove optimality?</button>
+                                <button type="button" class="chat-quick-chip" data-q="Give me 3 tough viva questions an external professor might ask on this eigenspace decomposition.">3 tough viva defense questions</button>
+                                <button type="button" class="chat-quick-chip" data-q="Explain what matrix rank and nullity mean for this specific image in simple terms.">Explain rank &amp; nullity simply</button>
+                            </div>
+
+                            <!-- Chat Input Form -->
+                            <form id="sarvamChatForm" class="sarvam-chat-input-form">
+                                <div class="chat-input-wrapper">
+                                    <input type="text" id="sarvamChatInput" class="sarvam-chat-input-field" placeholder="Ask about eigenvalues, SVD, reconstruction error, or viva tips in any language..." required autocomplete="off">
+                                    <button type="submit" class="sarvam-chat-send-btn" id="sarvamChatSubmit">
+                                        <span class="btn-spinner" aria-hidden="true"></span>
+                                        <span class="btn-text">Ask in <span id="activeLangName">English</span></span>
+                                        <svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
 
-                        <strong>
-                            {{ result.frobenius_error|floatformat:4 }}
-                        </strong>
-
                     </div>
+                </div>
+            </div>
+            {% endif %}
 
+            <!-- Step-by-Step Math Proofs -->
+            <div class="math-panels-wrap" data-fade>
+                <div style="margin-bottom: 32px;">
+                    <span class="eyebrow">Rigorous Mathematical Analysis</span>
+                    <h3 class="section-title">Step-by-Step Computational Proofs</h3>
+                </div>
 
-                    <div>
+                <div class="math-panels-grid">
+                    <!-- Step 01 -->
+                    <article class="math-panel">
+                        <div class="panel-step-row">
+                            <span class="step-badge">STEP 01</span>
+                            <span class="step-title">Matrix Representation</span>
+                        </div>
+                        <div class="formula-box">A ∈ ℝ<sup>64 × 64</sup>, 0 ≤ A<sub>ij</sub> ≤ 1</div>
+                        <div class="step-metrics">
+                            <div class="metric-row"><span>Matrix Dimensions</span><strong>{{ result.matrix_shape }}</strong></div>
+                            <div class="metric-row"><span>Pixel Range [Min, Max]</span><strong>[{{ result.matrix_min|floatformat:4 }}, {{ result.matrix_max|floatformat:4 }}]</strong></div>
+                            <div class="metric-row"><span>Normalization Check</span><strong class="gold">{{ result.matrix_normalized|yesno:"Verified [0, 1],Failed" }}</strong></div>
+                        </div>
+                        <p class="panel-note">The 2D digital image is converted to an uncompressed floating-point matrix where A<sub>ij</sub> represents relative grayscale luminance.</p>
+                    </article>
 
-                        <span>
-                            Relative
-                        </span>
+                    <!-- Step 02 -->
+                    <article class="math-panel">
+                        <div class="panel-step-row">
+                            <span class="step-badge">STEP 02</span>
+                            <span class="step-title">Matrix Rank &amp; Degrees of Freedom</span>
+                        </div>
+                        <div class="formula-box">ρ(A) = dim(col(A)) = dim(row(A))</div>
+                        <div class="step-metrics">
+                            <div class="metric-row"><span>Computed Rank ρ(A)</span><strong>{{ result.rank }}</strong></div>
+                            <div class="metric-row"><span>Maximum Possible Rank</span><strong>{{ result.matrix_cols }}</strong></div>
+                            <div class="metric-row"><span>Rank Deficiency</span><strong>{% if result.rank == result.matrix_cols %}None (Full Rank){% else %}Rank Deficient{% endif %}</strong></div>
+                        </div>
+                        <p class="panel-note">Rank measures the maximal number of linearly independent column vectors. If ρ(A) &lt; 64, rows exhibit structural linear dependence.</p>
+                    </article>
 
-                        <div class="formula">
-                            E<sub>relative</sub>
-                            =
-                            ‖A − A<sub>k</sub>‖<sub>F</sub>
-                            /
-                            ‖A‖<sub>F</sub>
-                            × 100
+                    <!-- Step 03 (full width) -->
+                    <article class="math-panel span-2">
+                        <div class="panel-step-row">
+                            <span class="step-badge">STEP 03</span>
+                            <span class="step-title">Covariance Eigen-Decomposition</span>
+                        </div>
+                        <div class="formula-box">A<sup>T</sup>A · v<sub>i</sub> = λ<sub>i</sub> · v<sub>i</sub>, &nbsp; λ<sub>1</sub> ≥ λ<sub>2</sub> ≥ … ≥ λ<sub>n</sub> ≥ 0</div>
+                        <div class="metrics-split">
+                            <div>
+                                <div class="metric-row"><span>Covariance Matrix A<sup>T</sup>A Shape</span><strong>{{ result.covariance_shape }}</strong></div>
+                                <div class="metric-row"><span>Sorted Monotonically Descending</span><strong class="gold">{{ result.eigenvalues_sorted|yesno:"Verified,Unsorted" }}</strong></div>
+                            </div>
+                            <div>
+                                <div class="metric-row"><span>Positive Semi-Definite (λ<sub>min</sub> ≥ 0)</span><strong class="gold">{{ result.eigenvalues_nonnegative|yesno:"Verified,Failed" }}</strong></div>
+                                <div class="metric-row"><span>Dominant Eigenvalues (Top 6)</span><strong class="mono" style="font-size:11px;">{{ result.dominant_eigenvalues }}</strong></div>
+                            </div>
+                        </div>
+                        <div class="sub-table-block">
+                            <div class="sub-table-head">Dominant Eigenvectors V (First 5 Principal Axes): {{ result.dominant_eigenvector_shape }}</div>
+                            {% include 'analyzer/table_preview.html' with data=result.dominant_eigenvectors_preview %}
+                        </div>
+                        <p class="panel-note">A<sup>T</sup>A is symmetric and real, guaranteeing an orthonormal set of eigenvectors by the Spectral Theorem. Eigenvalues quantify variance preserved along each axis.</p>
+                    </article>
+
+                    <!-- Step 04 -->
+                    <article class="math-panel">
+                        <div class="panel-step-row">
+                            <span class="step-badge">STEP 04</span>
+                            <span class="step-title">Subspace Selection</span>
+                        </div>
+                        <div class="formula-box">V<sub>k</sub> = [v<sub>1</sub>, v<sub>2</sub>, …, v<sub>k</sub>] ∈ ℝ<sup>64 × k</sup></div>
+                        <div class="step-metrics">
+                            <div class="metric-row"><span>Selected k Dimensions</span><strong class="gold">{{ result.selected_k }}</strong></div>
+                            <div class="metric-row"><span>Subspace Matrix V<sub>k</sub> Shape</span><strong>{{ result.vk_shape }}</strong></div>
+                            <div class="metric-row"><span>Compression Ratio (k / 64)</span><strong>{{ result.selected_k }} / 64</strong></div>
+                        </div>
+                        <p class="panel-note">Retaining the k largest eigenvalues discards minor noise directions while capturing primary geometric features.</p>
+                    </article>
+
+                    <!-- Step 05 -->
+                    <article class="math-panel">
+                        <div class="panel-step-row">
+                            <span class="step-badge">STEP 05</span>
+                            <span class="step-title">Subspace Projection</span>
+                        </div>
+                        <div class="formula-box">P = A · V<sub>k</sub> ∈ ℝ<sup>m × k</sup></div>
+                        <div class="step-metrics">
+                            <div class="metric-row"><span>Projection Formula</span><strong>{{ result.dimension_equation }}</strong></div>
+                            <div class="metric-row"><span>Projected Matrix P Shape</span><strong>{{ result.projection_shape }}</strong></div>
+                            <div class="metric-row"><span>Storage Reduction</span><strong>{{ result.matrix_rows|default:64 }}×64 → {{ result.matrix_rows|default:64 }}×{{ result.selected_k }}</strong></div>
+                        </div>
+                        <p class="panel-note">The original coordinates are transformed into coefficients along the k orthonormal eigen-basis directions.</p>
+                    </article>
+
+                    <!-- Step 06 -->
+                    <article class="math-panel">
+                        <div class="panel-step-row">
+                            <span class="step-badge">STEP 06</span>
+                            <span class="step-title">Low-Rank Reconstruction</span>
+                        </div>
+                        <div class="formula-box">A<sub>k</sub> = P · V<sub>k</sub><sup>T</sup> = (AV<sub>k</sub>) V<sub>k</sub><sup>T</sup></div>
+                        <div class="step-metrics">
+                            <div class="metric-row"><span>Reconstruction Formula</span><strong>{{ result.reconstruction_dimension_equation }}</strong></div>
+                            <div class="metric-row"><span>Reconstructed Shape A<sub>k</sub></span><strong>{{ result.reconstruction_shape }}</strong></div>
+                            <div class="metric-row"><span>Reconstruction Rank</span><strong class="gold">rank(A<sub>k</sub>) ≤ {{ result.selected_k }}</strong></div>
+                        </div>
+                        <p class="panel-note">Multiplying projected coefficients by V<sub>k</sub><sup>T</sup> maps low-dimensional data back into full pixel space, producing the optimal rank-k approximation.</p>
+                    </article>
+
+                    <!-- Step 07 -->
+                    <article class="math-panel">
+                        <div class="panel-step-row">
+                            <span class="step-badge">STEP 07</span>
+                            <span class="step-title">Error Metrics</span>
+                        </div>
+                        <div class="formula-box">‖A − A<sub>k</sub>‖<sub>F</sub> = √(∑<sub>i,j</sub> (A<sub>ij</sub> − A<sub>k,ij</sub>)<sup>2</sup>)</div>
+                        <div class="step-metrics">
+                            <div class="metric-row"><span>Absolute Frobenius Error</span><strong>{{ result.frobenius_error|floatformat:4 }}</strong></div>
+                            <div class="metric-row"><span>Relative Error Percentage</span><strong>{{ result.relative_error|floatformat:4 }}%</strong></div>
+                            <div class="metric-row"><span>Orthogonality Residual</span><strong class="gold">{{ result.orthogonality_error|floatformat:8 }}</strong></div>
+                        </div>
+                        <p class="panel-note">By the Eckart-Young-Mirsky theorem, this approximation achieves minimum possible Frobenius error for any rank-k matrix.</p>
+                    </article>
+
+                    <!-- Step 08 (full width) -->
+                    <article class="math-panel span-2 highlight-panel">
+                        <div class="panel-step-row">
+                            <span class="step-badge">STEP 08</span>
+                            <span class="step-title">Mathematical Interpretation &amp; Viva Summary</span>
                         </div>
 
-                        <strong>
-                            {{ result.relative_error|floatformat:4 }}%
-                        </strong>
+                        <p style="font-size: 15px; color: var(--ivory-dim); line-height: 1.7; margin-bottom: 20px;">
+                            The uploaded image is treated as a continuous linear operator represented by matrix A ∈ ℝ<sup>64×64</sup>. The spectral decomposition of covariance matrix A<sup>T</sup>A yields an optimal orthonormal coordinate system ordered by variance magnitude.
+                        </p>
 
+                        <div class="viva-grid">
+                            <div class="viva-item">
+                                <span class="viva-lbl">Current Subspace</span>
+                                <span class="viva-val gold">k = {{ result.selected_k }}</span>
+                            </div>
+                            <div class="viva-item" style="border-left: 1px solid var(--border-dark);">
+                                <span class="viva-lbl">Full Rank</span>
+                                <span class="viva-val">ρ(A) = {{ result.rank }}</span>
+                            </div>
+                            <div class="viva-item" style="border-left: 1px solid var(--border-dark);">
+                                <span class="viva-lbl">Relative Loss</span>
+                                <span class="viva-val">{{ result.relative_error|floatformat:2 }}%</span>
+                            </div>
+                            <div class="viva-item" style="border-left: 1px solid var(--border-dark);">
+                                <span class="viva-lbl">Variance Retention</span>
+                                <span class="viva-val gold" style="font-size: 13px;">Rank-{{ result.selected_k }} Eckart-Young</span>
+                            </div>
+                        </div>
+
+                        <p class="panel-note" style="margin-top: 16px;">
+                            When k increases from 1 toward 64, reconstruction error strictly decreases as higher-frequency image details (textures, fine edges) are successively restored.
+                        </p>
+                    </article>
+                </div>
+            </div>
+
+            <!-- Charts & Tables -->
+            <div class="charts-tables-grid" data-fade>
+                <!-- Eigenvalue Spectrum -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div>
+                            <span class="eyebrow" style="margin-bottom: 4px;">Spectral Decay</span>
+                            <h4 class="card-title-sm">Eigenvalue Spectrum of A<sup>T</sup>A</h4>
+                        </div>
+                        <span class="card-chip">Scree Plot</span>
+                    </div>
+                    <p class="card-caption">Rapid exponential decay of eigenvalues. Dominant eigen-axes capture the vast majority of image energy.</p>
+                    <div class="chart-container">
+                        <canvas id="eigenChart" height="220" data-values="{{ result.eigenvalues|join:',' }}"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item"><span class="legend-swatch gold"></span>Selected k Components (k = {{ result.selected_k }})</div>
+                        <div class="legend-item"><span class="legend-swatch dim"></span>Truncated Components</div>
+                    </div>
+                </div>
+
+                <!-- Component Comparison Table -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div>
+                            <span class="eyebrow" style="margin-bottom: 4px;">Benchmark Matrix</span>
+                            <h4 class="card-title-sm">Component Comparison Table</h4>
+                        </div>
+                        <span class="card-chip">k ∈ {1, 5, 10, 20, 32, 64}</span>
+                    </div>
+                    <p class="card-caption">Frobenius reconstruction error across varying subspace dimensions.</p>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>k</th>
+                                    <th>Frobenius Error ‖E‖<sub>F</sub></th>
+                                    <th>Relative Error (%)</th>
+                                    <th>Fidelity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in result.error_series %}
+                                <tr class="{% if row.k == result.selected_k %}active-row{% endif %}">
+                                    <td>
+                                        <span class="k-tag">k = {{ row.k }}</span>
+                                        {% if row.k == result.selected_k %}<span class="active-tag">ACTIVE</span>{% endif %}
+                                    </td>
+                                    <td>{{ row.error }}</td>
+                                    <td><strong>{{ row.relative_error }}%</strong></td>
+                                    <td>
+                                        <div class="progress-cell-wrap">
+                                            <div class="progress-cell-fill" style="width: calc(100% - {{ row.relative_error }}%); min-width: 2px;"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matrix Previews -->
+            <div class="matrix-previews-section" data-fade>
+                <div style="margin-bottom: 32px;">
+                    <span class="eyebrow">Numerical Data Inspector</span>
+                    <h3 class="section-title">Matrix &amp; Subspace Previews</h3>
+                    <p class="section-lead">Inspect exact floating-point entries generated by the NumPy pipeline.</p>
+                </div>
+
+                <div class="matrix-grid">
+                    <div class="preview-panel">
+                        <div class="preview-header">
+                            <div>
+                                <h5 class="preview-title">Matrix A Preview (First 10 × 10)</h5>
+                                <span class="preview-sub">Grayscale floating-point values in [0, 1]</span>
+                            </div>
+                            <span class="preview-chip">10 × 10</span>
+                        </div>
+                        <div class="preview-table-wrap">
+                            {% include 'analyzer/table_preview.html' with data=result.matrix_preview %}
+                        </div>
                     </div>
 
-                </div>
-
-
-                <p class="meaning">
-                    The relative error reports the reconstruction
-                    difference as a percentage of the original matrix norm.
-                </p>
-
-            </article>
-
-
-            <!-- =====================================================
-                 08 INTERPRETATION
-            ====================================================== -->
-            <article class="panel wide-panel interpretation-card">
-
-                <div class="interpretation-symbol">
-                    λ
-                </div>
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            VIVA MODE
-                        </span>
-
-                        <h2>
-                            08 · Mathematical Interpretation
-                        </h2>
-
+                    <div class="preview-panel">
+                        <div class="preview-header">
+                            <div>
+                                <h5 class="preview-title">Projection P = A · V<sub>k</sub></h5>
+                                <span class="preview-sub">First rows projected onto k eigen-directions</span>
+                            </div>
+                            <span class="preview-chip">10 × {{ result.selected_k|default:8 }}</span>
+                        </div>
+                        <div class="preview-table-wrap">
+                            {% include 'analyzer/table_preview.html' with data=result.projection_preview %}
+                        </div>
                     </div>
-
-                    <p>
-                        Concise explanation of the complete process.
-                    </p>
-
                 </div>
 
-
-                <p class="interpretation-text">
-
-                    The image is treated as a matrix A.
-                    Rank(A) describes independent structure in that matrix.
-                    The eigenvectors of A<sup>T</sup>A give orthogonal
-                    directions in the image vector space.
-                    Selecting k dominant eigenvectors gives a
-                    lower-dimensional representation.
-                    Projection calculates P = AV<sub>k</sub>,
-                    reconstruction calculates
-                    A<sub>k</sub> = PV<sub>k</sub><sup>T</sup>,
-                    and the Frobenius error measures how much
-                    information is lost.
-
-                </p>
-
-
-                <div class="viva-callout">
-
-                    For this upload:
-
-                    <b>
-                        k = {{ result.selected_k }}
-                    </b>
-
-                    ·
-
-                    <b>
-                        rank(A) = {{ result.rank }}
-                    </b>
-
-                    ·
-
-                    <b>
-                        relative error =
-                        {{ result.relative_error|floatformat:4 }}%
-                    </b>
-
-                </div>
-
-            </article>
-
-
-            <!-- =====================================================
-                 COMPONENT COMPARISON
-            ====================================================== -->
-            <article class="panel wide-panel comparison-panel">
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            PARAMETER STUDY
-                        </span>
-
-                        <h2>
-                            Component Comparison
-                        </h2>
-
+                <!-- Orthogonality Panel -->
+                <div class="ortho-panel" style="margin-top: 24px;">
+                    <div class="ortho-header">
+                        <div>
+                            <h5 class="preview-title">Orthogonality Verification: V<sub>k</sub><sup>T</sup> V<sub>k</sub> ≈ I<sub>k</sub></h5>
+                            <span class="preview-sub">Eigenvectors must form an orthonormal set (inner product matrix equals identity).</span>
+                        </div>
+                        <div class="ortho-status">
+                            <span>Status:</span>
+                            <span class="val">{{ result.orthogonality_status }}</span>
+                            <span class="err">(Error: {{ result.orthogonality_error|floatformat:10 }})</span>
+                        </div>
                     </div>
-
-                    <p>
-                        How reconstruction error changes
-                        as k increases.
-                    </p>
-
-                </div>
-
-
-                <div class="comparison-table-wrap">
-
-                    <table class="comparison-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>k</th>
-                                <th>Frobenius Error</th>
-                                <th>Relative Error (%)</th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {% for row in result.error_series %}
-
-                            <tr>
-
-                                <td>
-                                    <b>{{ row.k }}</b>
-                                </td>
-
-                                <td>
-                                    {{ row.error }}
-                                </td>
-
-                                <td>
-                                    {{ row.relative_error }}
-                                </td>
-
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </article>
-
-
-            <!-- =====================================================
-                 EIGENVALUE GRAPH
-            ====================================================== -->
-            <article class="panel wide-panel chart-panel">
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            SPECTRUM
-                        </span>
-
-                        <h2>
-                            Eigenvalue Spectrum
-                        </h2>
-
+                    <div class="preview-table-wrap" style="padding: 16px 28px;">
+                        {% include 'analyzer/table_preview.html' with data=result.eigenvectors_preview %}
                     </div>
-
-                    <p>
-                        Computed from A<sup>T</sup>A
-                        and sorted descending.
-                    </p>
-
                 </div>
-
-
-                <div class="chart-wrap">
-
-                    <canvas id="eigenChart" height="230" data-values="{{ result.eigenvalues|join:',' }}"></canvas>
-
-                </div>
-
-            </article>
-
-
-            <!-- =====================================================
-                 MATRIX A
-            ====================================================== -->
-            <article class="panel data-panel">
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            RAW DATA
-                        </span>
-
-                        <h2>
-                            Matrix A Preview
-                        </h2>
-
-                    </div>
-
-                    <p>
-                        First 10 rows and columns after normalization.
-                    </p>
-
-                </div>
-
-
-                {% include 'analyzer/table_preview.html' with data=result.matrix_preview %}
-
-            </article>
-
-
-            <!-- =====================================================
-                 PROJECTION P
-            ====================================================== -->
-            <article class="panel data-panel">
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            LOW-DIMENSIONAL DATA
-                        </span>
-
-                        <h2>
-                            Projection P Preview
-                        </h2>
-
-                    </div>
-
-                    <p>
-                        First rows of P = AV<sub>k</sub>.
-                    </p>
-
-                </div>
-
-
-                {% include 'analyzer/table_preview.html' with data=result.projection_preview %}
-
-            </article>
-
-
-            <!-- =====================================================
-                 ORTHOGONALITY
-            ====================================================== -->
-            <article class="panel wide-panel verification-panel">
-
-                <div class="panel-heading">
-
-                    <div>
-
-                        <span class="mini-label">
-                            VERIFICATION
-                        </span>
-
-                        <h2>
-                            Orthogonality Verification
-                        </h2>
-
-                    </div>
-
-                    <p>
-                        Selected eigenvectors should form
-                        an orthonormal basis.
-                    </p>
-
-                </div>
-
-
-                <div class="verification-row">
-
-                    <div class="formula">
-                        V<sub>k</sub><sup>T</sup>V<sub>k</sub>
-                        ≈
-                        I<sub>k</sub>
-                    </div>
-
-
-                    <div class="verification-result">
-
-                        <span>
-                            Error
-                        </span>
-
-                        <strong>
-                            {{ result.orthogonality_error|floatformat:10 }}
-                        </strong>
-
-                        <em>
-                            {{ result.orthogonality_status }}
-                        </em>
-
-                    </div>
-
-                </div>
-
-
-                {% include 'analyzer/table_preview.html' with data=result.eigenvectors_preview %}
-
-            </article>
+            </div>
 
         </section>
-
 
         {% else %}
-
-
-        <!-- =========================================================
-             EMPTY / LANDING STATE
-        ========================================================== -->
-        <section class="empty-state">
-
-            <div class="empty-symbol">
-                λ
+        <!-- ══════════════════════════════════════════════════════════
+             EMPTY STATE
+             ══════════════════════════════════════════════════════════ -->
+        <section class="page-section" aria-label="Empty state">
+            <div class="empty-state" data-fade>
+                <span class="empty-glyph">λ</span>
+                <h3 class="empty-heading">No Image Ingested Yet</h3>
+                <p class="empty-body">
+                    Upload an image above to trigger the 8-step linear algebra pipeline. The analyzer will compute matrix rank, calculate eigenvalues and eigenvectors from A<sup>T</sup>A, perform low-rank projection, and reconstruct the image with comprehensive error analysis.
+                </p>
+                <div class="flow-pills">
+                    <span class="flow-pill">1. Upload Image</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-pill">2. Extract Matrix A</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-pill">3. Solve A<sup>T</sup>A v = λv</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-pill">4. Project P = AV<sub>k</sub></span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-pill">5. Reconstruct A<sub>k</sub></span>
+                </div>
+                <a href="#controlPanel" class="btn-gold scroll-link">Upload Image Above</a>
             </div>
-
-            <span class="section-eyebrow">
-                READY FOR INPUT
-            </span>
-
-            <h2>
-                Upload an image to begin the experiment
-            </h2>
-
-            <p>
-
-                The system will convert the image to grayscale,
-                resize it to 64 × 64, construct matrix A,
-                analyze A<sup>T</sup>A, select dominant eigenvectors,
-                project the matrix, reconstruct it,
-                and calculate the error.
-
-            </p>
-
-
-            <div class="empty-flow">
-
-                <span>IMAGE</span>
-                <b>→</b>
-                <span>MATRIX</span>
-                <b>→</b>
-                <span>EIGENSPACE</span>
-                <b>→</b>
-                <span>RECONSTRUCTION</span>
-
-            </div>
-
         </section>
-
-
         {% endif %}
 
-
-        <!-- =========================================================
+        <!-- ══════════════════════════════════════════════════════════
              FOOTER
-        ========================================================== -->
-        <footer class="footer">
-
-            <span>
-                EigenLab
-            </span>
-
-            <span>
-                Linear Algebra &amp; Vector Calculus Mini Project
-            </span>
-
-            <span>
-                Matrix → Eigen → Projection → Reconstruction
-            </span>
-
+             ══════════════════════════════════════════════════════════ -->
+        <footer class="site-footer">
+            <div class="footer-inner">
+                <div>
+                    <div class="footer-brand"><span>[ λ ]</span> EigenLab</div>
+                    <div class="footer-desc">Linear Algebra &amp; Vector Calculus Mini Project</div>
+                </div>
+                <div class="footer-meta">
+                    Computational Engine: NumPy 2.2 · Django 5.2 · Pillow 12.3<br>
+                    Spectral Image Transformation &amp; Dimensionality Reduction Laboratory
+                </div>
+            </div>
         </footer>
 
-    </main>
+    </div><!-- .page-wrapper -->
 
+    <!-- ══════════════════════════════════════════════════════════
+         LOADING OVERLAY (Cinematic Math Laboratory Modal)
+         ══════════════════════════════════════════════════════════ -->
+    <div id="eigenLoadingOverlay" class="loading-overlay" role="status" aria-live="polite">
+        <div class="loading-card">
+            <div class="loader-visual">
+                <div class="loader-orbit orbit-outer"></div>
+                <div class="loader-orbit orbit-inner"></div>
+                <div class="loader-glyph">λ</div>
+            </div>
+            <p class="loader-eyebrow">NumPy SVD &amp; Eigenspace Engine</p>
+            <h3 class="loader-title">Decomposing Eigenspaces</h3>
+            <p class="loader-status" id="loaderStatusText">Reading uploaded image data...</p>
+            <div class="loader-progress-track">
+                <div class="loader-progress-bar"></div>
+            </div>
+            <div class="loader-stages" id="loaderStagesList">
+                <span class="stage-item active">01 Image Ingestion</span>
+                <span class="stage-item">02 Matrix A [0, 1]</span>
+                <span class="stage-item">03 Covariance A<sup>T</sup>A</span>
+                <span class="stage-item">04 Eigen-Decomposition</span>
+                <span class="stage-item">05 Projection P</span>
+                <span class="stage-item">06 Synthesis A<sub>k</sub></span>
+            </div>
+            <div class="loader-formula-ticker">
+                <code>min ‖A − A<sub>k</sub>‖<sub>F</sub> &nbsp;·&nbsp; A<sup>T</sup>A v<sub>i</sub> = λ<sub>i</sub> v<sub>i</sub> &nbsp;·&nbsp; rank(A<sub>k</sub>) ≤ k</code>
+            </div>
+        </div>
+    </div>
 
+    <!-- Scripts -->
     <script src="{% static 'analyzer/app.js' %}"></script>
+    <script src="{% static 'analyzer/motion.js' %}"></script>
+
+    <script>
+    // Scroll fade-in animation
+    (function() {
+        const items = document.querySelectorAll('[data-fade]');
+        if (!items.length) return;
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }});
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+        items.forEach(el => io.observe(el));
+    })();
+
+    // Smooth scroll links
+    document.querySelectorAll('.scroll-link').forEach(a => {
+        a.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                e.preventDefault();
+                const el = document.querySelector(href);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Range slider gold fill
+    const slider = document.getElementById('kRange');
+    if (slider) {
+        function updateSliderFill() {
+            const min = +slider.min || 1, max = +slider.max || 64, val = +slider.value;
+            const pct = ((val - min) / (max - min)) * 100;
+            slider.style.background = `linear-gradient(to right, var(--gold) ${pct}%, var(--border-bright) ${pct}%)`;
+        }
+        slider.addEventListener('input', updateSliderFill);
+        updateSliderFill();
+    }
+    </script>
+    <!-- ══════════════════════════════════════════════════════════
+         SARVAM AI — FLOATING CHATBOT WIDGET
+         ══════════════════════════════════════════════════════════ -->
+
+    <!-- Floating Trigger Bubble -->
+    <button id="chatBubbleBtn" class="chat-bubble-btn" aria-label="Open Sarvam AI Assistant" title="Ask Sarvam AI">
+        <!-- Chat icon (default) -->
+        <svg class="icon-chat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <!-- Close icon (when open) -->
+        <svg class="icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        <!-- Unread badge (shown on first load) -->
+        <span class="chat-unread-badge" id="chatUnreadBadge">1</span>
+    </button>
+
+    <!-- Chat Drawer Panel -->
+    <div id="chatDrawer" class="chat-drawer" role="dialog" aria-label="Sarvam AI Chat" aria-modal="true">
+
+        <!-- Header -->
+        <div class="chat-drawer-header">
+            <div class="chat-avatar" aria-hidden="true">λ</div>
+            <div class="chat-header-info">
+                <div class="chat-header-name">Sarvam AI · EigenLab</div>
+                <div class="chat-header-sub">
+                    <span class="chat-online-dot"></span>
+                    Live · Math + Indic Languages
+                </div>
+            </div>
+            <div class="chat-header-actions">
+                <!-- Language Selector -->
+                <div class="chat-lang-selector" id="chatLangSelector" role="button" aria-haspopup="listbox" aria-expanded="false" tabindex="0" title="Select language">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span id="chatActiveLang">English</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    <!-- Dropdown -->
+                    <div class="chat-lang-dropdown" id="chatLangDropdown" role="listbox">
+                        <div class="chat-lang-option active" data-lang="English" role="option">🇬🇧 English</div>
+                        <div class="chat-lang-option" data-lang="Hindi" role="option">🇮🇳 हिंदी (Hindi)</div>
+                        <div class="chat-lang-option" data-lang="Kannada" role="option">🌟 ಕನ್ನಡ (Kannada)</div>
+                        <div class="chat-lang-option" data-lang="Tamil" role="option">🌟 தமிழ் (Tamil)</div>
+                        <div class="chat-lang-option" data-lang="Telugu" role="option">🌟 తెలుగు (Telugu)</div>
+                        <div class="chat-lang-option" data-lang="Marathi" role="option">🌟 मराठी (Marathi)</div>
+                        <div class="chat-lang-option" data-lang="Bengali" role="option">🌟 বাংলা (Bengali)</div>
+                        <div class="chat-lang-option" data-lang="Gujarati" role="option">🌟 ગુજરાતી (Gujarati)</div>
+                        <div class="chat-lang-option" data-lang="Malayalam" role="option">🌟 മലയാളം (Malayalam)</div>
+                    </div>
+                </div>
+                <!-- Clear thread -->
+                <button class="chat-clear-btn" id="chatClearBtn" title="Clear conversation" aria-label="Clear chat history">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Message Thread -->
+        <div class="chat-messages" id="chatMessages" aria-live="polite" aria-atomic="false">
+            <!-- Welcome system message -->
+            <div class="chat-system-msg">Session started</div>
+
+            <!-- Welcome bot message -->
+            <div class="chat-msg bot-msg" id="chatWelcomeMsg">
+                <div class="chat-msg-avatar bot-avatar" aria-hidden="true">λ</div>
+                <div>
+                    <div class="chat-msg-bubble">
+                        Namaste! 🙏 I'm <strong>Sarvam AI</strong>, your mathematical companion for EigenLab.<br><br>
+                        Ask me anything about <em>eigenvalues, eigenvectors, matrix decomposition, SVD, PCA</em> — or switch to an Indian language using the 🌐 button above!
+                    </div>
+                    <div class="chat-msg-time">Sarvam AI · Just now</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div class="chat-quick-prompts" id="chatQuickPrompts">
+            <button class="quick-chip" data-q="What is an eigenvalue?">What is an eigenvalue?</button>
+            <button class="quick-chip" data-q="Explain the Eckart-Young theorem">Eckart-Young theorem</button>
+            <button class="quick-chip" data-q="How does PCA work?">How does PCA work?</button>
+            <button class="quick-chip" data-q="What is the Frobenius norm?">Frobenius norm?</button>
+            <button class="quick-chip" data-q="Explain SVD vs eigen decomposition">SVD vs Eigen-decomp</button>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="chat-input-bar">
+            <div class="chat-input-wrap">
+                <textarea
+                    id="chatInput"
+                    placeholder="Ask about eigenvalues, SVD, PCA… in any language"
+                    rows="1"
+                    autocomplete="off"
+                    aria-label="Chat message input"
+                    maxlength="1000"
+                ></textarea>
+            </div>
+            <button id="chatSendBtn" class="chat-send-btn" aria-label="Send message" title="Send (Enter)">
+                <!-- Send icon -->
+                <svg class="send-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+                <!-- Loading spinner (hidden by default) -->
+                <svg class="spin-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="display:none;" aria-hidden="true">
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                </svg>
+            </button>
+        </div>
+    </div>
 
 </body>
-
 </html>

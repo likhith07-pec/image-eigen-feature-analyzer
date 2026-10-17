@@ -1,0 +1,261 @@
+{
+  "communities": {
+    "0": [
+      "analyzer_image_processing",
+      "analyzer_image_processing_image_to_matrix",
+      "analyzer_math_pipeline",
+      "analyzer_math_pipeline_analyze_image",
+      "analyzer_reconstruction",
+      "analyzer_reconstruction_calculate_frobenius_error",
+      "analyzer_reconstruction_calculate_relative_error",
+      "analyzer_reconstruction_compare_components",
+      "analyzer_reconstruction_project_matrix",
+      "analyzer_reconstruction_reconstruct_matrix",
+      "analyzer_reconstruction_select_components",
+      "analyzer_visualization",
+      "analyzer_visualization_eigenvalue_preview",
+      "analyzer_visualization_matrix_preview",
+      "analyzer_visualization_matrix_to_data_uri"
+    ],
+    "1": [
+      "analyzer_forms",
+      "analyzer_forms_imageuploadform",
+      "analyzer_init",
+      "analyzer_services",
+      "analyzer_urls",
+      "analyzer_views",
+      "analyzer_views_analyzer_home"
+    ],
+    "2": [
+      "analyzer_matrix_analysis",
+      "analyzer_matrix_analysis_analyze_matrix",
+      "analyzer_matrix_analysis_calculate_rank",
+      "analyzer_matrix_analysis_matrix_max",
+      "analyzer_matrix_analysis_matrix_min",
+      "analyzer_matrix_analysis_matrix_size"
+    ],
+    "3": [
+      "analyzer_sarvam_ai",
+      "analyzer_sarvam_ai_clean_sarvam_response",
+      "analyzer_sarvam_ai_generate_mathematical_insight",
+      "analyzer_sarvam_ai_get_sarvam_api_key",
+      "analyzer_sarvam_ai_rationale_37",
+      "analyzer_sarvam_ai_rationale_53"
+    ],
+    "4": [
+      "analyzer_eigen_analysis",
+      "analyzer_eigen_analysis_calculate_covariance_matrix",
+      "analyzer_eigen_analysis_calculate_eigen_features",
+      "analyzer_eigen_analysis_calculate_eigenpairs",
+      "analyzer_eigen_analysis_check_orthogonality"
+    ],
+    "5": [
+      "analyzer_static_analyzer_app",
+      "analyzer_static_analyzer_app_handlefile",
+      "analyzer_static_analyzer_app_rendereigenspectrumchart",
+      "analyzer_static_analyzer_app_submitsarvamquestion",
+      "analyzer_static_analyzer_app_updatekvalue"
+    ],
+    "6": [
+      "analyzer_apps",
+      "analyzer_apps_analyzerconfig",
+      "appconfig"
+    ],
+    "7": [
+      "analyzer_sarvam_ai_ask_sarvam_question",
+      "analyzer_sarvam_ai_rationale_181",
+      "analyzer_views_api_sarvam_chat"
+    ],
+    "8": [
+      "analyzer_sarvam_ai_rationale_268",
+      "analyzer_sarvam_ai_translate_sarvam_text",
+      "analyzer_views_api_sarvam_translate"
+    ],
+    "9": [
+      "manage",
+      "manage_main",
+      "manage_rationale_8"
+    ],
+    "10": [
+      "imageeigenanalyzer_asgi",
+      "imageeigenanalyzer_asgi_rationale_1"
+    ],
+    "11": [
+      "imageeigenanalyzer_settings",
+      "imageeigenanalyzer_settings_rationale_1"
+    ],
+    "12": [
+      "imageeigenanalyzer_urls",
+      "imageeigenanalyzer_urls_rationale_1"
+    ],
+    "13": [
+      "imageeigenanalyzer_wsgi",
+      "imageeigenanalyzer_wsgi_rationale_1"
+    ],
+    "14": [
+      "analyzer_migrations_init"
+    ],
+    "15": [
+      "analyzer_static_analyzer_motion"
+    ],
+    "16": [
+      "analyzer_templates_analyzer_home"
+    ],
+    "17": [
+      "docs_code_architecture"
+    ],
+    "18": [
+      "docs_mathematical_foundation"
+    ],
+    "19": [
+      "docs_mathematical_pipeline"
+    ],
+    "20": [
+      "docs_project_overview"
+    ],
+    "21": [
+      "imageeigenanalyzer_init"
+    ],
+    "22": [
+      "sample_upload_image"
+    ]
+  },
+  "cohesion": {
+    "0": 0.3523809523809524,
+    "1": 0.38095238095238093,
+    "2": 0.6,
+    "3": 0.4666666666666667,
+    "4": 0.6,
+    "5": 0.4,
+    "6": 0.6666666666666666,
+    "7": 0.6666666666666666,
+    "8": 0.6666666666666666,
+    "9": 0.6666666666666666,
+    "10": 1.0,
+    "11": 1.0,
+    "12": 1.0,
+    "13": 1.0,
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0,
+    "17": 1.0,
+    "18": 1.0,
+    "19": 1.0,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0
+  },
+  "gods": [
+    {
+      "id": "analyzer_math_pipeline_analyze_image",
+      "label": "analyze_image()",
+      "degree": 16
+    },
+    {
+      "id": "analyzer_matrix_analysis_analyze_matrix",
+      "label": "analyze_matrix()",
+      "degree": 7
+    },
+    {
+      "id": "analyzer_sarvam_ai_generate_mathematical_insight",
+      "label": "generate_mathematical_insight()",
+      "degree": 6
+    },
+    {
+      "id": "analyzer_sarvam_ai_ask_sarvam_question",
+      "label": "ask_sarvam_question()",
+      "degree": 6
+    },
+    {
+      "id": "analyzer_sarvam_ai_translate_sarvam_text",
+      "label": "translate_sarvam_text()",
+      "degree": 6
+    },
+    {
+      "id": "analyzer_eigen_analysis_calculate_eigen_features",
+      "label": "calculate_eigen_features()",
+      "degree": 5
+    },
+    {
+      "id": "analyzer_reconstruction_compare_components",
+      "label": "compare_components()",
+      "degree": 5
+    },
+    {
+      "id": "analyzer_sarvam_ai_clean_sarvam_response",
+      "label": "clean_sarvam_response()",
+      "degree": 5
+    },
+    {
+      "id": "analyzer_reconstruction_project_matrix",
+      "label": "project_matrix()",
+      "degree": 4
+    },
+    {
+      "id": "analyzer_reconstruction_reconstruct_matrix",
+      "label": "reconstruct_matrix()",
+      "degree": 4
+    }
+  ],
+  "surprises": [
+    {
+      "source": "analyzer_home()",
+      "target": "analyze_image()",
+      "source_files": [
+        "analyzer/views.py",
+        "analyzer/math_pipeline.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": "analyze_image()",
+      "target": "calculate_eigen_features()",
+      "source_files": [
+        "analyzer/math_pipeline.py",
+        "analyzer/eigen_analysis.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "analyze_image()",
+      "target": "check_orthogonality()",
+      "source_files": [
+        "analyzer/math_pipeline.py",
+        "analyzer/eigen_analysis.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "analyze_image()",
+      "target": "analyze_matrix()",
+      "source_files": [
+        "analyzer/math_pipeline.py",
+        "analyzer/matrix_analysis.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "analyzer_home()",
+      "target": "generate_mathematical_insight()",
+      "source_files": [
+        "analyzer/views.py",
+        "analyzer/sarvam_ai.py"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    }
+  ],
+  "tokens": {
+    "input": 44044,
+    "output": 1350
+  }
+}

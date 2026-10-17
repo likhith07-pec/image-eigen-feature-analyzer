@@ -1,0 +1,3291 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EigenLab — Image Transformation &amp; Eigen-Feature Analyzer</title>
+    <meta name="description" content="Decompose digital images into orthogonal eigen-spaces, compute low-rank approximations, and explore dimensionality reduction in real time.">
+    <!-- Google Fonts: Playfair Display (editorial headline), Plus Jakarta Sans (controls & body), JetBrains Mono (math & code) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/analyzer/base.css">
+    <link rel="stylesheet" href="/static/analyzer/styles.css">
+</head>
+<body class="editorial-body">
+
+    <!-- Subtle atmospheric grain/grid -->
+    <div class="editorial-noise" aria-hidden="true"></div>
+    <div class="editorial-grid-bg" aria-hidden="true"></div>
+
+    <!-- ── Navigation Header ── -->
+    <header class="editorial-nav" id="topbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="nav-logo-mark" aria-hidden="true">[ λ ]</span>
+                <div class="nav-brand-info">
+                    <span class="brand-title">EigenLab</span>
+                    <span class="brand-subtitle">Linear Algebra &amp; Vector Calculus Laboratory</span>
+                </div>
+            </div>
+
+            <div class="nav-status-cluster">
+                <div class="system-status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span class="status-label">Analysis Engine Online · NumPy v2.2</span>
+                </div>
+                <a href="#controlPanel" class="nav-cta-btn scroll-link">Upload &amp; Analyze</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-container">
+
+        <!-- ── Hero Section (Two-Column Layout) ── -->
+        <section class="editorial-hero" data-anim="fade-up">
+            <div class="hero-left">
+                <div class="editorial-pill">
+                    <span class="pill-dot"></span>
+                    <span>Linear Algebra &amp; Vector Calculus Mini Project</span>
+                </div>
+
+                <h1 class="hero-headline">
+                    Image Transformation &amp; <br>
+                    <em>Eigen-Feature</em> Analyzer
+                </h1>
+
+                <p class="hero-subtext">
+                    Decompose digital images into orthogonal eigen-spaces, compute low-rank matrix approximations, and visualize dimensionality reduction in real time using covariance eigen-decomposition.
+                </p>
+
+                <div class="hero-tags-cluster">
+                    <span class="tag-pill">Matrix A ∈ ℝ<sup>m×n</sup></span>
+                    <span class="tag-pill">Rank ρ(A)</span>
+                    <span class="tag-pill">Eigenvectors V<sub>k</sub></span>
+                    <span class="tag-pill">Projection P</span>
+                    <span class="tag-pill">Reconstruction A<sub>k</sub></span>
+                </div>
+
+                <div class="hero-actions">
+                    <a href="#controlPanel" class="btn-primary scroll-link">
+                        <span>Begin Analysis</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="#workflowSection" class="btn-secondary scroll-link">
+                        <span>Explore 8-Step Pipeline</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <!-- Visually Compelling Mathematical Pipeline Illustration -->
+                <div class="pipeline-card">
+                    <div class="pipeline-card-header">
+                        <span class="mono-eyebrow">MATHEMATICAL PIPELINE</span>
+                        <span class="pipeline-chip">SVD &amp; EIGEN-BASIS</span>
+                    </div>
+
+                    <div class="pipeline-visual-diagram">
+                        <div class="pipeline-node active-node">
+                            <div class="node-badge">Matrix</div>
+                            <span class="node-math">A</span>
+                            <small class="node-dim">64 × 64</small>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+
+                        <div class="pipeline-node">
+                            <div class="node-badge">Covariance</div>
+                            <span class="node-math">A<sup>T</sup>A</span>
+                            <small class="node-dim">64 × 64</small>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+
+                        <div class="pipeline-node highlight-node">
+                            <div class="node-badge">Eigen-Basis</div>
+                            <span class="node-math">V<sub>k</sub></span>
+                            <small class="node-dim">64 × k</small>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+
+                        <div class="pipeline-node">
+                            <div class="node-badge">Projection</div>
+                            <span class="node-math">P = AV<sub>k</sub></span>
+                            <small class="node-dim">64 × k</small>
+                        </div>
+                        <div class="pipeline-arrow">→</div>
+
+                        <div class="pipeline-node success-node">
+                            <div class="node-badge">Reconstruction</div>
+                            <span class="node-math">A<sub>k</sub></span>
+                            <small class="node-dim">64 × 64</small>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-card-footer">
+                        <div class="formula-banner">
+                            <span class="formula-tag">Objective</span>
+                            <code>min ‖A − A<sub>k</sub>‖<sub>F</sub> s.t. rank(A<sub>k</sub>) ≤ k</code>
+                        </div>
+                        <div class="pipeline-meta">
+                            <span>Symmetric Eigendecomposition</span>
+                            <span class="lime-text">Eckart-Young Theorem</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Workflow Section: 8 Distinct Designed Cards ── -->
+        <section class="workflow-section" id="workflowSection" data-anim="fade-up">
+            <div class="section-title-wrap">
+                <div>
+                    <span class="mono-eyebrow">COMPUTATIONAL SEQUENCE</span>
+                    <h2 class="section-heading">The Eight-Step Mathematical Pipeline</h2>
+                </div>
+                <p class="section-desc">Each stage transforms raw image luminosity into rigorous linear algebraic subspaces.</p>
+            </div>
+
+            <div class="workflow-grid">
+                <!-- Step 01 -->
+                <div class="workflow-card">
+                    <div class="card-top">
+                        <span class="step-num">01</span>
+                        <span class="math-tag">A ∈ [0, 1]<sup>m×n</sup></span>
+                    </div>
+                    <h3 class="card-title">Image to Matrix</h3>
+                    <p class="card-body">Converts image pixels into grayscale intensity values normalized onto the real unit interval [0, 1].</p>
+                    <div class="card-footer-formula">Resized to 64 × 64 floats</div>
+                </div>
+
+                <!-- Step 02 -->
+                <div class="workflow-card">
+                    <div class="card-top">
+                        <span class="step-num">02</span>
+                        <span class="math-tag">ρ(A) ≤ min(m,n)</span>
+                    </div>
+                    <h3 class="card-title">Matrix Rank</h3>
+                    <p class="card-body">Determines the number of linearly independent row and column vectors using SVD singular value thresholds.</p>
+                    <div class="card-footer-formula">Rank vs dimension analysis</div>
+                </div>
+
+                <!-- Step 03 -->
+                <div class="workflow-card">
+                    <div class="card-top">
+                        <span class="step-num">03</span>
+                        <span class="math-tag">A<sup>T</sup>A v<sub>i</sub> = λ<sub>i</sub> v<sub>i</sub></span>
+                    </div>
+                    <h3 class="card-title">Eigen Analysis</h3>
+                    <p class="card-body">Forms symmetric positive semi-definite matrix A<sup>T</sup>A and extracts real eigenvalues and orthogonal eigenvectors.</p>
+                    <div class="card-footer-formula">Spectral decomposition</div>
+                </div>
+
+                <!-- Step 04 -->
+                <div class="workflow-card">
+                    <div class="card-top">
+                        <span class="step-num">04</span>
+                        <span class="math-tag">V<sub>k</sub> = [v<sub>1</sub>…v<sub>k</sub>]</span>
+                    </div>
+                    <h3 class="card-title">Component Selection</h3>
+                    <p class="card-body">Sorts eigenvalues in descending order and retains the top k principal eigen-directions capturing maximal variance.</p>
+                    <div class="card-footer-formula">Dimensionality reduction</div>
+                </div>
+
+                <!-- Step 05 -->
+                <div class="workflow-card">
+                    <div class="card-top">
+                        <span class="step-num">05</span>
+                        <span class="math-tag">P = A · V<sub>k</sub></span>
+                    </div>
+                    <h3 class="card-title">Matrix Projection</h3>
+                    <p class="card-body">Projects original 64-dimensional row space onto the optimal k-dimensional subspace spanned by V<sub>k</sub>.</p>
+                    <div class="card-footer-formula">(64 × 64)(64 × k) = 64 × k</div>
+                </div>
+
+                <!-- Step 06 -->
+                <div class="workflow-card">
+                    <div class="card-top">
+                        <span class="step-num">06</span>
+                        <span class="math-tag">A<sub>k</sub> = P · V<sub>k</sub><sup>T</sup></span>
+                    </div>
+                    <h3 class="card-title">Reconstruction</h3>
+                    <p class="card-body">Re-synthesizes low-rank matrix approximation A<sub>k</sub> back into the full 64 × 64 pixel domain.</p>
+                    <div class="card-footer-formula">(64 × k)(k × 64) = 64 × 64</div>
+                </div>
+
+                <!-- Step 07 -->
+                <div class="workflow-card">
+                    <div class="card-top">
+                        <span class="step-num">07</span>
+                        <span class="math-tag">‖A − A<sub>k</sub>‖<sub>F</sub></span>
+                    </div>
+                    <h3 class="card-title">Error Analysis</h3>
+                    <p class="card-body">Computes Frobenius matrix norm difference and relative error percentage between original and reconstruction.</p>
+                    <div class="card-footer-formula">Relative &amp; absolute metric</div>
+                </div>
+
+                <!-- Step 08 -->
+                <div class="workflow-card">
+                    <div class="card-top">
+                        <span class="step-num">08</span>
+                        <span class="math-tag">Energy Compaction</span>
+                    </div>
+                    <h3 class="card-title">Interpretation</h3>
+                    <p class="card-body">Evaluates energy retention, spectral roll-off, and low-rank compression efficiency for viva and reporting.</p>
+                    <div class="card-footer-formula">Optimal rank-k approximation</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Error Notice ── -->
+        
+
+        <!-- ── Image Upload & Analysis Controls (Polished Panel) ── -->
+        <section class="control-panel-section" id="controlPanel" data-anim="fade-up">
+            <div class="control-panel-container">
+                <div class="panel-header-bar">
+                    <div>
+                        <span class="mono-eyebrow">IMAGE INGESTION &amp; HYPERPARAMETERS</span>
+                        <h2 class="panel-title">Upload Image &amp; Configure Eigenspace</h2>
+                    </div>
+                    <div class="panel-badge-group">
+                        <span class="status-chip">NUMPY ACCELERATED</span>
+                        <span class="status-chip active-chip">INTERACTIVE V2.4</span>
+                    </div>
+                </div>
+
+                <form id="analysisForm" method="post" enctype="multipart/form-data" class="editorial-form">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="hKXeeOisioRz6tQN6DLiDhrhTBdaREeBdgyTkzSnLiSTZHEc2BzaTdbi304YZstb">
+                    <!-- Preserves previous upload so user can adjust k and re-run without re-uploading -->
+                    <input type="hidden" name="image_name" id="imageNameInput" value="sample_upload_image_cNMr6Uo.png">
+
+                    <div class="form-columns-grid">
+                        <!-- Dropzone Column -->
+                        <div class="dropzone-col">
+                            <label class="input-label" for="imageInput">1. Image Selection</label>
+                            
+                            <div class="editorial-dropzone has-file" id="dropZone">
+                                <input type="file" id="imageInput" name="image" accept="image/*" class="visually-hidden">
+                                
+                                <div class="dropzone-inner">
+                                    <div class="upload-icon-circle">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                    </div>
+                                    
+                                    <h4 class="dropzone-headline">
+                                        
+                                        Selected: <span class="file-name-highlight" id="fileName">sample_upload_image_cNMr6Uo.png</span>
+                                        
+                                    </h4>
+
+                                    <p class="dropzone-sub" id="fileSubtext">
+                                        
+                                        Previously uploaded image is ready. Upload a new file or adjust k below.
+                                        
+                                    </p>
+                                    
+                                    <div class="file-preview-strip" id="previewStrip" >
+                                        <span class="preview-badge">Active Source</span>
+                                        
+                                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAAAAACPAi4CAAACLUlEQVR4nO1XTW/TQBCdN+s4ReKQJgqmEgdKRVEPnFGbU38PEr8SiT9gQOKjSFWEhFADAdLYideDTPyZrDdG5sDBe0k2M/vm7fPOWwdC7Qa3XE8dALXXwMm+hH+jfG8XIHy+bEpGzS9faLXDYNkcYLkqzZycFjcFYEZ5Ri0HdwDUaUCdBvQ/aJD7gVKNDaWS6aSfMm/uSN9vDQDqclX2Gdvg26dU5EL+lQbaHJdCZxFKK6O0W1gZSLIihZakVrwjFCwAAqL5gnyd1EU0PNaes/m1EYCA9KfZt1/5NRRrfd89GW1o7QcQ6M9vA91TydY3qYR1zONHXoUEagAEH6Y3fU5ELJcj0eI9OSwhwAwgeOc7vdgQAYXuZFAgwAggeO/3t6rngyO+KDhAauof1D8eaJ4Mcjgyrb+yrSdR8cufGT82ZYTX+QGtQVhPLQwEX2c9e4uI+3GNWgDoN65J/2qOn+6BTeGaxqpwyHLYFG1iLWzLjRoARBYADPdJQMKjegDh062WNeTcOUl7kg0E5NAL7TJwcJY1KRvC4NN+ZOPAwdE4MwWYe2H2Kla1Z4nD8XlemE0ZkOGEdd0uOBg/4xydjTmQwQUHFevKIpDFvXOnCKHWkX5Mr7RS1QcKrHBwduTsdyRKfG/1+svCRUEyRhSNHhznL+p2AErMd764vlFBOlf99eO7nrPl67D1bZIaif9nG4hGD5O7ZfuMYf/NZJk3u1wlzzVF0f31pdZvab8BaczBYVyD6asAAAAASUVORK5CYII=" alt="Uploaded preview" class="preview-thumbnail" id="previewThumb">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- K-Control Column -->
+                        <div class="controls-col">
+                            <label class="input-label">2. Dominant Eigen-Components (k)</label>
+
+                            <div class="slider-control-card">
+                                <div class="k-value-banner">
+                                    <div class="k-label-block">
+                                        <span class="k-param-title">Subspace Rank Dimension</span>
+                                        <span class="k-param-desc">Controls the number of eigenvectors in V<sub>k</sub></span>
+                                    </div>
+                                    <div class="k-display-badge">
+                                        <span class="k-symbol">k =</span>
+                                        <span class="k-number" id="kValue">16</span>
+                                    </div>
+                                </div>
+
+                                <div class="slider-track-wrap">
+                                    <input type="range" id="kRange" name="k" min="1" max="64" value="16" class="editorial-slider">
+                                    <div class="slider-ticks">
+                                        <span>k = 1</span>
+                                        <span>k = 16</span>
+                                        <span>k = 32</span>
+                                        <span>k = 48</span>
+                                        <span>k = 64</span>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Presets -->
+                                <div class="k-presets-group">
+                                    <span class="presets-label">Quick Presets:</span>
+                                    <div class="preset-buttons">
+                                        <button type="button" class="preset-btn" data-k="1">1</button>
+                                        <button type="button" class="preset-btn" data-k="4">4</button>
+                                        <button type="button" class="preset-btn" data-k="8">8</button>
+                                        <button type="button" class="preset-btn" data-k="16">16</button>
+                                        <button type="button" class="preset-btn" data-k="32">32</button>
+                                        <button type="button" class="preset-btn" data-k="64">64</button>
+                                    </div>
+                                </div>
+
+                                <div class="k-info-callout">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                    <span>Lower k yields higher compression with blur; higher k yields closer reconstruction to original A.</span>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="submit-action-wrap">
+                                <button type="submit" class="editorial-submit-btn" id="runBtn">
+                                    <span class="btn-spinner" aria-hidden="true"></span>
+                                    <span class="btn-text">Run Eigenspace Analysis</span>
+                                    <span class="btn-k-tag">k = <strong class="run-k-echo">16</strong></span>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ── Analysis Results Dashboard ── -->
+        
+        <section class="results-dashboard" id="resultsSection" data-anim="fade-up">
+            <!-- Results Header -->
+            <div class="results-header-banner">
+                <div class="results-title-block">
+                    <span class="mono-eyebrow">COMPUTATION COMPLETE</span>
+                    <h2 class="results-headline">Analysis Dashboard · k = 16</h2>
+                    <p class="results-sub">Numerical decomposition, low-rank projection, and reconstruction error metrics.</p>
+                </div>
+
+                <div class="results-badge-cluster">
+                    <div class="result-badge-item">
+                        <span class="badge-label">ORTHOGONALITY</span>
+                        <span class="badge-value text-lime">Verified</span>
+                    </div>
+                    <div class="result-badge-item">
+                        <span class="badge-label">MATRIX RANK</span>
+                        <span class="badge-value">34 / 64</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Metric Cards (6 Cards) -->
+            <div class="summary-metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span class="metric-tag">DIMENSIONS</span>
+                        <span class="metric-icon">⊞</span>
+                    </div>
+                    <div class="metric-val">64 x 64</div>
+                    <div class="metric-lbl">Normalized Grayscale Matrix A</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span class="metric-tag">MATRIX RANK</span>
+                        <span class="metric-icon">ρ</span>
+                    </div>
+                    <div class="metric-val">34</div>
+                    <div class="metric-lbl">Linearly Independent Columns</div>
+                </div>
+
+                <div class="metric-card highlight-card">
+                    <div class="metric-top">
+                        <span class="metric-tag">COMPONENTS</span>
+                        <span class="metric-icon">V<sub>k</sub></span>
+                    </div>
+                    <div class="metric-val text-lime">16</div>
+                    <div class="metric-lbl">Retained Dominant Eigen-Axes</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span class="metric-tag">FROBENIUS ERROR</span>
+                        <span class="metric-icon">‖E‖<sub>F</sub></span>
+                    </div>
+                    <div class="metric-val">0.0184</div>
+                    <div class="metric-lbl">Absolute Residual Norm ‖A − A<sub>k</sub>‖<sub>F</sub></div>
+                </div>
+
+                <div class="metric-card success-card">
+                    <div class="metric-top">
+                        <span class="metric-tag">RELATIVE ERROR</span>
+                        <span class="metric-icon">%</span>
+                    </div>
+                    <div class="metric-val">0.03%</div>
+                    <div class="metric-lbl">Reconstruction Error Ratio</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span class="metric-tag">ORTHOGONALITY</span>
+                        <span class="metric-icon">I<sub>k</sub></span>
+                    </div>
+                    <div class="metric-val text-lime">‖V<sub>k</sub><sup>T</sup>V<sub>k</sub> − I‖ ≈ 0</div>
+                    <div class="metric-lbl">Max Inner-Product Deviation: 0.000000</div>
+                </div>
+            </div>
+
+            <!-- Side-by-Side Image Comparison Panel -->
+            <div class="image-comparison-panel">
+                <div class="comparison-header">
+                    <div>
+                        <span class="mono-eyebrow">VISUAL RECONSTRUCTION</span>
+                        <h3 class="comparison-title">Original Matrix A vs Reconstructed Matrix A<sub>k</sub></h3>
+                    </div>
+                    <div class="comparison-meta">
+                        <span class="meta-pill">Normalized Pixel Domain: [0, 1]</span>
+                        <span class="meta-pill text-lime">Retained Subspace: k = 16</span>
+                    </div>
+                </div>
+
+                <div class="comparison-dual-view">
+                    <!-- Original Image Card -->
+                    <div class="image-view-card">
+                        <div class="view-card-top">
+                            <span class="view-badge">ORIGINAL MATRIX</span>
+                            <span class="view-tag">A ∈ ℝ<sup>64×64</sup></span>
+                        </div>
+                        <div class="view-image-frame">
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAAAAACPAi4CAAACLUlEQVR4nO1XTW/TQBCdN+s4ReKQJgqmEgdKRVEPnFGbU38PEr8SiT9gQOKjSFWEhFADAdLYideDTPyZrDdG5sDBe0k2M/vm7fPOWwdC7Qa3XE8dALXXwMm+hH+jfG8XIHy+bEpGzS9faLXDYNkcYLkqzZycFjcFYEZ5Ri0HdwDUaUCdBvQ/aJD7gVKNDaWS6aSfMm/uSN9vDQDqclX2Gdvg26dU5EL+lQbaHJdCZxFKK6O0W1gZSLIihZakVrwjFCwAAqL5gnyd1EU0PNaes/m1EYCA9KfZt1/5NRRrfd89GW1o7QcQ6M9vA91TydY3qYR1zONHXoUEagAEH6Y3fU5ELJcj0eI9OSwhwAwgeOc7vdgQAYXuZFAgwAggeO/3t6rngyO+KDhAauof1D8eaJ4Mcjgyrb+yrSdR8cufGT82ZYTX+QGtQVhPLQwEX2c9e4uI+3GNWgDoN65J/2qOn+6BTeGaxqpwyHLYFG1iLWzLjRoARBYADPdJQMKjegDh062WNeTcOUl7kg0E5NAL7TJwcJY1KRvC4NN+ZOPAwdE4MwWYe2H2Kla1Z4nD8XlemE0ZkOGEdd0uOBg/4xydjTmQwQUHFevKIpDFvXOnCKHWkX5Mr7RS1QcKrHBwduTsdyRKfG/1+svCRUEyRhSNHhznL+p2AErMd764vlFBOlf99eO7nrPl67D1bZIaif9nG4hGD5O7ZfuMYf/NZJk3u1wlzzVF0f31pdZvab8BaczBYVyD6asAAAAASUVORK5CYII=" alt="Original Grayscale Image Matrix A" class="matrix-render-img">
+                        </div>
+                        <div class="view-card-footer">
+                            <div class="footer-stat">
+                                <span>Shape:</span>
+                                <strong>64 x 64</strong>
+                            </div>
+                            <div class="footer-stat">
+                                <span>Pixel Range:</span>
+                                <strong>[0.235, 1.000]</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Divider with interactive Diff -->
+                    <div class="comparison-divider-column">
+                        <div class="divider-icon">⇄</div>
+                        <div class="divider-text">Low-Rank Projection &amp; Synthesis</div>
+                        <div class="divider-error-pill">Relative Error: 0.03%</div>
+                    </div>
+
+                    <!-- Reconstructed Image Card -->
+                    <div class="image-view-card">
+                        <div class="view-card-top">
+                            <span class="view-badge active-badge">RECONSTRUCTED MATRIX</span>
+                            <span class="view-tag">A<sub>k</sub> ∈ ℝ<sup>64×64</sup></span>
+                        </div>
+                        <div class="view-image-frame">
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAAAAACPAi4CAAADZ0lEQVR4nO1WSWtUQRCur/pNFkUwE7MYBMUY0YtnE0Hyezz4M/UqJFFQI0gUQU1MQpaZyXSXdFd3v35vnhdzECQFWV4vVV9tXzUcBYFA/yESCMQvCBGI9HdYDqfilt/1wnRJ4SsFdOkYVDF7MoppCQLy+crJKtPoN0wvLRJV8d7oxaAAE27qaf0ManxFCMQcb750RtoIBmeFgnAz1pFWlJoMWs3ZqAZAVb5jkoKANSsBsehO/AaYc9VeFdJVDFSYLil8pYD+fQyqyCwwppORMp/4kRSoTkzFkliqJhQ5bjBSYpVAIlGDjjWS6vCUJNEUJQVmc9TwppiAkRkzqeLsCQIeteUuOVwR/4qbpPUIJSKDOIKqgAn+NRRQjaCcAJ5PbVxl9q6HmzEcjSxQ9ipaETiAjk5pK3gJO3ffLvZIXGBszUrpAppBCK7bT78OTngq7ljrlnur8zkUCgExiNmnpMDx+Nu7c9dT3HoEF5YXVpe0IFpZoEYIQA67ewfTQLidJxPBObf8sF+oQAcC8kY/bFeVD7tWZUxNODWcejZXpwydLjh83Johp1bqEauew/K6x9BSUAgcv9+aySVUD1etbmLLGzfbWaAClGD3zaxLoS6GfGwGguXnNyJmlijIIjTY64V69otBQzwRf4iq0RdfZV44X8tC9HO/CrnQRf+PnvA9BK/QTe+O4Cc90EUo7u20dCIIXRwUkt1O7SzJ81qBjIvGKtOb6t9rcDFqVQcCsNVmaAcxP74ExDH8VaOAoiGb+KD1RpJIdQTxKNFAIAWC/g/TiUA5LiDgfrTMk2kks+Z87MKNbD/d18p21x4INdJIBQA3tzzUjlf+0Cykb2/LDB77BS9VyWRJA9b2rXG59pMLoQz8B85XFlI7oquUCQevnSd/fSs2H5oEDBfWOSWYO5IAkv4GW/+crIkjGQHxYPEpezjJnErLFRy8Gk2xTLQzSAa315Va/6wAHv3R111bsatHQEB/QbOPVoxwZnHkwVLeD18Y7nw/mYakmoOjsZ2/c89EVm4HEVlBTLYwHZ593jdD3XLV1Hjt+lJPayn3BbppPY5mgoxlxwY6vbh1V3qZpGoFLsPunEwoY6CUkBRQuxuljIG+DIj9qk4m/yYI1lOfTbQzJvKhSaSYco1s2x6Xyf8b+Q8U/Abvszta79oI6gAAAABJRU5ErkJggg==" alt="Reconstructed Image Matrix A_k" class="matrix-render-img">
+                        </div>
+                        <div class="view-card-footer">
+                            <div class="footer-stat">
+                                <span>Components Used:</span>
+                                <strong class="text-lime">k = 16</strong>
+                            </div>
+                            <div class="footer-stat">
+                                <span>Frobenius Norm Error:</span>
+                                <strong>0.0184</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mathematical Breakdown: 8 Detailed Cards Grid -->
+            <div class="math-breakdown-section">
+                <div class="breakdown-header">
+                    <span class="mono-eyebrow">RIGOROUS MATHEMATICAL ANALYSIS</span>
+                    <h3 class="breakdown-title">Step-by-Step Computational Proofs</h3>
+                </div>
+
+                <div class="math-cards-grid">
+                    <!-- Step 01: Matrix Representation -->
+                    <article class="math-panel">
+                        <div class="panel-step-banner">
+                            <span class="step-badge">STEP 01</span>
+                            <span class="step-name">Matrix Representation</span>
+                        </div>
+                        <div class="formula-box">A ∈ ℝ<sup>64 × 64</sup>, 0 ≤ A<sub>ij</sub> ≤ 1</div>
+                        <div class="step-metrics">
+                            <div class="metric-row">
+                                <span>Matrix Dimensions</span>
+                                <strong>64 x 64</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Pixel Range [Min, Max]</span>
+                                <strong>[0.2353, 1.0000]</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Normalization Check</span>
+                                <strong class="text-lime">Verified [0</strong>
+                            </div>
+                        </div>
+                        <p class="panel-explanation">The 2D digital image is converted to an uncompressed floating-point matrix where entry A<sub>ij</sub> represents relative grayscale luminance.</p>
+                    </article>
+
+                    <!-- Step 02: Matrix Rank -->
+                    <article class="math-panel">
+                        <div class="panel-step-banner">
+                            <span class="step-badge">STEP 02</span>
+                            <span class="step-name">Matrix Rank &amp; Degrees of Freedom</span>
+                        </div>
+                        <div class="formula-box">ρ(A) = dim(col(A)) = dim(row(A))</div>
+                        <div class="step-metrics">
+                            <div class="metric-row">
+                                <span>Computed Rank ρ(A)</span>
+                                <strong>34</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Maximum Possible Rank</span>
+                                <strong>64</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Rank Deficiency</span>
+                                <strong>63 (Rank Deficient)</strong>
+                            </div>
+                        </div>
+                        <p class="panel-explanation">Rank measures the maximal number of linearly independent column vectors. If ρ(A) &lt; 64, rows exhibit structural linear dependence.</p>
+                    </article>
+
+                    <!-- Step 03: Eigen Analysis of A^T A -->
+                    <article class="math-panel span-2-col">
+                        <div class="panel-step-banner">
+                            <span class="step-badge">STEP 03</span>
+                            <span class="step-name">Covariance Eigen-Decomposition</span>
+                        </div>
+                        <div class="formula-box">A<sup>T</sup>A · v<sub>i</sub> = λ<sub>i</sub> · v<sub>i</sub>, &nbsp; λ<sub>1</sub> ≥ λ<sub>2</sub> ≥ … ≥ λ<sub>n</sub> ≥ 0</div>
+                        
+                        <div class="metrics-split-grid">
+                            <div class="metric-row">
+                                <span>Covariance Matrix A<sup>T</sup>A Shape</span>
+                                <strong>64 x 64</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Sorted Monotonically Descending</span>
+                                <strong class="text-lime">Verified (λ₁ ≥ λ₂ ≥ …)</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Positive Semi-Definite (λ<sub>min</sub> ≥ 0)</span>
+                                <strong class="text-lime">Verified (All λ ≥ 0)</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Dominant Eigenvalues (Top 6)</span>
+                                <strong class="mono-truncate">[2799.1465, 92.0267, 9.8835, 2.95, 1.0183, 0.4658]</strong>
+                            </div>
+                        </div>
+
+                        <div class="sub-table-preview-wrap">
+                            <div class="sub-table-header">Dominant Eigenvectors V (First 5 Principal Axes): 64 x 5</div>
+                            <div class="table-preview">
+
+    <div class="table-preview-top">
+
+        <div class="table-preview-title">
+            <span class="table-symbol">Σ</span>
+
+            <div>
+                <strong>Numerical Matrix</strong>
+                <small>Computed values</small>
+            </div>
+        </div>
+
+        <span class="table-preview-badge">
+            PREVIEW
+        </span>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="matrix-table">
+
+            <tbody>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        1
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        2
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        3
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        4
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        5
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        6
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        7
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        8
+                    </th>
+
+                    
+
+                    <td>
+                        0.147
+                    </td>
+
+                    
+
+                    <td>
+                        0.164
+                    </td>
+
+                    
+
+                    <td>
+                        -0.044
+                    </td>
+
+                    
+
+                    <td>
+                        -0.05
+                    </td>
+
+                    
+
+                    <td>
+                        0.047
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        9
+                    </th>
+
+                    
+
+                    <td>
+                        0.126
+                    </td>
+
+                    
+
+                    <td>
+                        -0.096
+                    </td>
+
+                    
+
+                    <td>
+                        -0.205
+                    </td>
+
+                    
+
+                    <td>
+                        -0.013
+                    </td>
+
+                    
+
+                    <td>
+                        -0.001
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        10
+                    </th>
+
+                    
+
+                    <td>
+                        0.125
+                    </td>
+
+                    
+
+                    <td>
+                        -0.111
+                    </td>
+
+                    
+
+                    <td>
+                        -0.214
+                    </td>
+
+                    
+
+                    <td>
+                        -0.011
+                    </td>
+
+                    
+
+                    <td>
+                        -0.004
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="table-preview-footer">
+
+        <span>
+            Showing preview values
+        </span>
+
+        <span>
+            Matrix computation performed with NumPy
+        </span>
+
+    </div>
+
+</div>
+                        </div>
+
+                        <p class="panel-explanation">A<sup>T</sup>A is symmetric and real, guaranteeing an orthonormal set of eigenvectors by the Spectral Theorem. Eigenvalues quantify variance preserved along each axis.</p>
+                    </article>
+
+                    <!-- Step 04: Component Selection -->
+                    <article class="math-panel">
+                        <div class="panel-step-banner">
+                            <span class="step-badge">STEP 04</span>
+                            <span class="step-name">Subspace Selection</span>
+                        </div>
+                        <div class="formula-box">V<sub>k</sub> = [v<sub>1</sub>, v<sub>2</sub>, …, v<sub>k</sub>] ∈ ℝ<sup>64 × k</sup></div>
+                        <div class="step-metrics">
+                            <div class="metric-row">
+                                <span>Selected k Dimensions</span>
+                                <strong class="text-lime">16</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Subspace Matrix V<sub>k</sub> Shape</span>
+                                <strong>64 x 16</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Compression Ratio (k / 64)</span>
+                                <strong>16 / 64</strong>
+                            </div>
+                        </div>
+                        <p class="panel-explanation">Retaining the k largest eigenvalues discards minor noise directions while capturing the primary geometric features of the image.</p>
+                    </article>
+
+                    <!-- Step 05: Matrix Projection -->
+                    <article class="math-panel">
+                        <div class="panel-step-banner">
+                            <span class="step-badge">STEP 05</span>
+                            <span class="step-name">Subspace Projection</span>
+                        </div>
+                        <div class="formula-box">P = A · V<sub>k</sub> ∈ ℝ<sup>m × k</sup></div>
+                        <div class="step-metrics">
+                            <div class="metric-row">
+                                <span>Projection Formula</span>
+                                <strong>(64 x 64)(64 x 16) = 64 x 16</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Projected Matrix P Shape</span>
+                                <strong>64 x 16</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Storage Reduction</span>
+                                <strong>From 64×64 to 64×16</strong>
+                            </div>
+                        </div>
+                        <p class="panel-explanation">The original coordinates are transformed into coefficients along the k orthonormal eigen-basis directions.</p>
+                    </article>
+
+                    <!-- Step 06: Reconstruction -->
+                    <article class="math-panel">
+                        <div class="panel-step-banner">
+                            <span class="step-badge">STEP 06</span>
+                            <span class="step-name">Low-Rank Reconstruction</span>
+                        </div>
+                        <div class="formula-box">A<sub>k</sub> = P · V<sub>k</sub><sup>T</sup> = (A V<sub>k</sub>) V<sub>k</sub><sup>T</sup></div>
+                        <div class="step-metrics">
+                            <div class="metric-row">
+                                <span>Reconstruction Formula</span>
+                                <strong>(64 x 16)(16 x 64) = 64 x 64</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Reconstructed Shape A<sub>k</sub></span>
+                                <strong>64 x 64</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Reconstruction Rank</span>
+                                <strong class="text-lime">rank(A<sub>k</sub>) ≤ 16</strong>
+                            </div>
+                        </div>
+                        <p class="panel-explanation">Multiplying projected coefficients by V<sub>k</sub><sup>T</sup> maps the low-dimensional data back into full pixel space, producing the optimal rank-k approximation.</p>
+                    </article>
+
+                    <!-- Step 07: Error Analysis -->
+                    <article class="math-panel">
+                        <div class="panel-step-banner">
+                            <span class="step-badge">STEP 07</span>
+                            <span class="step-name">Error Metrics</span>
+                        </div>
+                        <div class="formula-box">‖A − A<sub>k</sub>‖<sub>F</sub> = √(∑<sub>i,j</sub> (A<sub>ij</sub> − A<sub>k,ij</sub>)<sup>2</sup>)</div>
+                        <div class="step-metrics">
+                            <div class="metric-row">
+                                <span>Absolute Frobenius Error</span>
+                                <strong>0.0184</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Relative Error Percentage</span>
+                                <strong>0.0341%</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Orthogonality Residual</span>
+                                <strong class="text-lime">0.00000000</strong>
+                            </div>
+                        </div>
+                        <p class="panel-explanation">By the Eckart-Young-Mirsky theorem, this approximation achieves minimum possible Frobenius error for any rank-k matrix.</p>
+                    </article>
+
+                    <!-- Step 08: Mathematical Interpretation -->
+                    <article class="math-panel span-2-col interpretation-highlight">
+                        <div class="panel-step-banner">
+                            <span class="step-badge">STEP 08</span>
+                            <span class="step-name">Mathematical Interpretation &amp; Viva Summary</span>
+                        </div>
+                        
+                        <div class="interpretation-content">
+                            <p class="lead-interpretation">
+                                The uploaded image is treated as a continuous linear operator represented by matrix A ∈ ℝ<sup>64×64</sup>. The spectral decomposition of covariance matrix A<sup>T</sup>A yields an optimal orthonormal coordinate system ordered by variance magnitude.
+                            </p>
+                            <div class="viva-summary-box">
+                                <div class="viva-metric-item">
+                                    <span class="viva-lbl">Current Subspace</span>
+                                    <strong class="viva-val text-lime">k = 16</strong>
+                                </div>
+                                <div class="viva-metric-item">
+                                    <span class="viva-lbl">Full Rank</span>
+                                    <strong class="viva-val">ρ(A) = 34</strong>
+                                </div>
+                                <div class="viva-metric-item">
+                                    <span class="viva-lbl">Relative Loss</span>
+                                    <strong class="viva-val">0.03%</strong>
+                                </div>
+                                <div class="viva-metric-item">
+                                    <span class="viva-lbl">Variance Retention</span>
+                                    <strong class="viva-val text-lime">Rank-16 Eckart-Young Bound</strong>
+                                </div>
+                            </div>
+                            <p class="supporting-text">
+                                When k increases from 1 toward 64, reconstruction error strictly decreases as higher-frequency image details (textures, fine edges) are successively restored.
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <!-- ── Eigenvalue Spectrum Chart & Component Comparison Table ── -->
+            <div class="charts-and-tables-grid">
+                <!-- Spectrum Chart Card -->
+                <div class="dashboard-card chart-card">
+                    <div class="card-header-cluster">
+                        <div>
+                            <span class="mono-eyebrow">SPECTRAL DECAY</span>
+                            <h4 class="card-heading">Eigenvalue Spectrum of A<sup>T</sup>A</h4>
+                        </div>
+                        <span class="card-tag">Scree Plot</span>
+                    </div>
+                    <p class="card-caption">Shows the rapid exponential decay of eigenvalues. Dominant eigen-axes capture the vast majority of image energy.</p>
+                    
+                    <div class="chart-canvas-container">
+                        <canvas id="eigenChart" height="240" data-values="2799.1465,92.0267,9.8835,2.95,1.0183,0.4658,0.2984,0.1765,0.1162,0.0699,0.0427,0.0243,0.0049,0.002,0.0008,0.0002,0.0001,0.0001,0.0001,0.0"></canvas>
+                    </div>
+
+                    <div class="chart-legend">
+                        <div class="legend-item"><span class="legend-color lime-block"></span> Selected k Components (k = 16)</div>
+                        <div class="legend-item"><span class="legend-color grey-block"></span> Truncated Components</div>
+                    </div>
+                </div>
+
+                <!-- Component Comparison Table Card -->
+                <div class="dashboard-card table-card">
+                    <div class="card-header-cluster">
+                        <div>
+                            <span class="mono-eyebrow">BENCHMARK MATRIX</span>
+                            <h4 class="card-heading">Component Comparison Table</h4>
+                        </div>
+                        <span class="card-tag">k ∈ {1, 5, 10, 20, 32, 64}</span>
+                    </div>
+                    <p class="card-caption">Evaluating Frobenius reconstruction error across varying subspace dimensions.</p>
+
+                    <div class="table-container">
+                        <table class="editorial-table">
+                            <thead>
+                                <tr>
+                                    <th>k</th>
+                                    <th>Frobenius Error ‖E‖<sub>F</sub></th>
+                                    <th>Relative Error (%)</th>
+                                    <th>Reconstruction Fidelity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                                <tr class="">
+                                    <td>
+                                        <span class="k-badge">k = 1</span>
+                                        
+                                    </td>
+                                    <td class="mono-num">10.348</td>
+                                    <td class="mono-num"><strong>19.1951%</strong></td>
+                                    <td>
+                                        <div class="progress-bar-cell">
+                                            <div class="cell-bar-fill" style="width: calc(100% - 19.1951%);"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="">
+                                    <td>
+                                        <span class="k-badge">k = 5</span>
+                                        
+                                    </td>
+                                    <td class="mono-num">1.0964</td>
+                                    <td class="mono-num"><strong>2.0338%</strong></td>
+                                    <td>
+                                        <div class="progress-bar-cell">
+                                            <div class="cell-bar-fill" style="width: calc(100% - 2.0338%);"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="">
+                                    <td>
+                                        <span class="k-badge">k = 10</span>
+                                        
+                                    </td>
+                                    <td class="mono-num">0.2742</td>
+                                    <td class="mono-num"><strong>0.5087%</strong></td>
+                                    <td>
+                                        <div class="progress-bar-cell">
+                                            <div class="cell-bar-fill" style="width: calc(100% - 0.5087%);"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="">
+                                    <td>
+                                        <span class="k-badge">k = 20</span>
+                                        
+                                    </td>
+                                    <td class="mono-num">0.0076</td>
+                                    <td class="mono-num"><strong>0.014%</strong></td>
+                                    <td>
+                                        <div class="progress-bar-cell">
+                                            <div class="cell-bar-fill" style="width: calc(100% - 0.014%);"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="">
+                                    <td>
+                                        <span class="k-badge">k = 32</span>
+                                        
+                                    </td>
+                                    <td class="mono-num">0.0002</td>
+                                    <td class="mono-num"><strong>0.0003%</strong></td>
+                                    <td>
+                                        <div class="progress-bar-cell">
+                                            <div class="cell-bar-fill" style="width: calc(100% - 0.0003%);"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="">
+                                    <td>
+                                        <span class="k-badge">k = 64</span>
+                                        
+                                    </td>
+                                    <td class="mono-num">0.0</td>
+                                    <td class="mono-num"><strong>0.0%</strong></td>
+                                    <td>
+                                        <div class="progress-bar-cell">
+                                            <div class="cell-bar-fill" style="width: calc(100% - 0.0%);"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Scrollable Matrix Data Previews ── -->
+            <div class="matrix-previews-section">
+                <div class="section-title-wrap">
+                    <div>
+                        <span class="mono-eyebrow">NUMERICAL DATA INSPECTOR</span>
+                        <h3 class="section-heading">Matrix &amp; Subspace Previews</h3>
+                    </div>
+                    <p class="section-desc">Inspect exact floating-point entries generated by the NumPy pipeline.</p>
+                </div>
+
+                <div class="matrix-previews-grid">
+                    <!-- Matrix A Preview -->
+                    <div class="preview-panel">
+                        <div class="preview-panel-header">
+                            <div>
+                                <h5 class="preview-title">Matrix A Preview (First 10 × 10)</h5>
+                                <span class="preview-sub">Grayscale floating-point values in [0, 1]</span>
+                            </div>
+                            <span class="preview-chip">10 × 10</span>
+                        </div>
+                        <div class="preview-table-wrapper">
+                            <div class="table-preview">
+
+    <div class="table-preview-top">
+
+        <div class="table-preview-title">
+            <span class="table-symbol">Σ</span>
+
+            <div>
+                <strong>Numerical Matrix</strong>
+                <small>Computed values</small>
+            </div>
+        </div>
+
+        <span class="table-preview-badge">
+            PREVIEW
+        </span>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="matrix-table">
+
+            <tbody>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        1
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        2
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        3
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        4
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        5
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        6
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        7
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        8
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        0.973
+                    </td>
+
+                    
+
+                    <td>
+                        0.973
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        9
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        0.973
+                    </td>
+
+                    
+
+                    <td>
+                        0.388
+                    </td>
+
+                    
+
+                    <td>
+                        0.353
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        10
+                    </th>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        1.0
+                    </td>
+
+                    
+
+                    <td>
+                        0.973
+                    </td>
+
+                    
+
+                    <td>
+                        0.353
+                    </td>
+
+                    
+
+                    <td>
+                        0.318
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="table-preview-footer">
+
+        <span>
+            Showing preview values
+        </span>
+
+        <span>
+            Matrix computation performed with NumPy
+        </span>
+
+    </div>
+
+</div>
+                        </div>
+                    </div>
+
+                    <!-- Projection P Preview -->
+                    <div class="preview-panel">
+                        <div class="preview-panel-header">
+                            <div>
+                                <h5 class="preview-title">Projection P = A · V<sub>k</sub> Preview</h5>
+                                <span class="preview-sub">First rows projected onto k eigen-directions</span>
+                            </div>
+                            <span class="preview-chip">10 × 16</span>
+                        </div>
+                        <div class="preview-table-wrapper">
+                            <div class="table-preview">
+
+    <div class="table-preview-top">
+
+        <div class="table-preview-title">
+            <span class="table-symbol">Σ</span>
+
+            <div>
+                <strong>Numerical Matrix</strong>
+                <small>Computed values</small>
+            </div>
+        </div>
+
+        <span class="table-preview-badge">
+            PREVIEW
+        </span>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="matrix-table">
+
+            <tbody>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        1
+                    </th>
+
+                    
+
+                    <td>
+                        7.935
+                    </td>
+
+                    
+
+                    <td>
+                        -0.911
+                    </td>
+
+                    
+
+                    <td>
+                        0.441
+                    </td>
+
+                    
+
+                    <td>
+                        -0.084
+                    </td>
+
+                    
+
+                    <td>
+                        -0.031
+                    </td>
+
+                    
+
+                    <td>
+                        0.014
+                    </td>
+
+                    
+
+                    <td>
+                        -0.01
+                    </td>
+
+                    
+
+                    <td>
+                        0.004
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        2
+                    </th>
+
+                    
+
+                    <td>
+                        7.935
+                    </td>
+
+                    
+
+                    <td>
+                        -0.911
+                    </td>
+
+                    
+
+                    <td>
+                        0.441
+                    </td>
+
+                    
+
+                    <td>
+                        -0.084
+                    </td>
+
+                    
+
+                    <td>
+                        -0.031
+                    </td>
+
+                    
+
+                    <td>
+                        0.014
+                    </td>
+
+                    
+
+                    <td>
+                        -0.01
+                    </td>
+
+                    
+
+                    <td>
+                        0.004
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        3
+                    </th>
+
+                    
+
+                    <td>
+                        7.935
+                    </td>
+
+                    
+
+                    <td>
+                        -0.911
+                    </td>
+
+                    
+
+                    <td>
+                        0.441
+                    </td>
+
+                    
+
+                    <td>
+                        -0.084
+                    </td>
+
+                    
+
+                    <td>
+                        -0.031
+                    </td>
+
+                    
+
+                    <td>
+                        0.014
+                    </td>
+
+                    
+
+                    <td>
+                        -0.01
+                    </td>
+
+                    
+
+                    <td>
+                        0.004
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        4
+                    </th>
+
+                    
+
+                    <td>
+                        7.935
+                    </td>
+
+                    
+
+                    <td>
+                        -0.911
+                    </td>
+
+                    
+
+                    <td>
+                        0.441
+                    </td>
+
+                    
+
+                    <td>
+                        -0.084
+                    </td>
+
+                    
+
+                    <td>
+                        -0.031
+                    </td>
+
+                    
+
+                    <td>
+                        0.014
+                    </td>
+
+                    
+
+                    <td>
+                        -0.01
+                    </td>
+
+                    
+
+                    <td>
+                        0.004
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        5
+                    </th>
+
+                    
+
+                    <td>
+                        7.935
+                    </td>
+
+                    
+
+                    <td>
+                        -0.911
+                    </td>
+
+                    
+
+                    <td>
+                        0.441
+                    </td>
+
+                    
+
+                    <td>
+                        -0.084
+                    </td>
+
+                    
+
+                    <td>
+                        -0.031
+                    </td>
+
+                    
+
+                    <td>
+                        0.014
+                    </td>
+
+                    
+
+                    <td>
+                        -0.01
+                    </td>
+
+                    
+
+                    <td>
+                        0.004
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        6
+                    </th>
+
+                    
+
+                    <td>
+                        7.935
+                    </td>
+
+                    
+
+                    <td>
+                        -0.911
+                    </td>
+
+                    
+
+                    <td>
+                        0.441
+                    </td>
+
+                    
+
+                    <td>
+                        -0.084
+                    </td>
+
+                    
+
+                    <td>
+                        -0.031
+                    </td>
+
+                    
+
+                    <td>
+                        0.014
+                    </td>
+
+                    
+
+                    <td>
+                        -0.01
+                    </td>
+
+                    
+
+                    <td>
+                        0.004
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        7
+                    </th>
+
+                    
+
+                    <td>
+                        7.935
+                    </td>
+
+                    
+
+                    <td>
+                        -0.911
+                    </td>
+
+                    
+
+                    <td>
+                        0.441
+                    </td>
+
+                    
+
+                    <td>
+                        -0.084
+                    </td>
+
+                    
+
+                    <td>
+                        -0.031
+                    </td>
+
+                    
+
+                    <td>
+                        0.014
+                    </td>
+
+                    
+
+                    <td>
+                        -0.01
+                    </td>
+
+                    
+
+                    <td>
+                        0.004
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        8
+                    </th>
+
+                    
+
+                    <td>
+                        7.795
+                    </td>
+
+                    
+
+                    <td>
+                        -0.795
+                    </td>
+
+                    
+
+                    <td>
+                        0.428
+                    </td>
+
+                    
+
+                    <td>
+                        -0.081
+                    </td>
+
+                    
+
+                    <td>
+                        -0.03
+                    </td>
+
+                    
+
+                    <td>
+                        0.013
+                    </td>
+
+                    
+
+                    <td>
+                        -0.01
+                    </td>
+
+                    
+
+                    <td>
+                        0.004
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        9
+                    </th>
+
+                    
+
+                    <td>
+                        4.659
+                    </td>
+
+                    
+
+                    <td>
+                        1.8
+                    </td>
+
+                    
+
+                    <td>
+                        0.134
+                    </td>
+
+                    
+
+                    <td>
+                        -0.011
+                    </td>
+
+                    
+
+                    <td>
+                        0.003
+                    </td>
+
+                    
+
+                    <td>
+                        0.001
+                    </td>
+
+                    
+
+                    <td>
+                        -0.001
+                    </td>
+
+                    
+
+                    <td>
+                        -0.0
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        10
+                    </th>
+
+                    
+
+                    <td>
+                        4.478
+                    </td>
+
+                    
+
+                    <td>
+                        1.95
+                    </td>
+
+                    
+
+                    <td>
+                        0.118
+                    </td>
+
+                    
+
+                    <td>
+                        -0.006
+                    </td>
+
+                    
+
+                    <td>
+                        0.005
+                    </td>
+
+                    
+
+                    <td>
+                        0.001
+                    </td>
+
+                    
+
+                    <td>
+                        -0.0
+                    </td>
+
+                    
+
+                    <td>
+                        -0.001
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="table-preview-footer">
+
+        <span>
+            Showing preview values
+        </span>
+
+        <span>
+            Matrix computation performed with NumPy
+        </span>
+
+    </div>
+
+</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orthogonality Check Preview -->
+                <div class="orthogonality-panel">
+                    <div class="preview-panel-header">
+                        <div>
+                            <h5 class="preview-title">Orthogonality Verification: V<sub>k</sub><sup>T</sup> V<sub>k</sub> ≈ I<sub>k</sub></h5>
+                            <span class="preview-sub">Eigenvectors must form an orthonormal set (inner product matrix equals identity).</span>
+                        </div>
+                        <div class="ortho-status-badge">
+                            <span>Status:</span>
+                            <strong class="text-lime">Verified</strong>
+                            <small>(Error: 0.0000000000)</small>
+                        </div>
+                    </div>
+                    <div class="preview-table-wrapper">
+                        <div class="table-preview">
+
+    <div class="table-preview-top">
+
+        <div class="table-preview-title">
+            <span class="table-symbol">Σ</span>
+
+            <div>
+                <strong>Numerical Matrix</strong>
+                <small>Computed values</small>
+            </div>
+        </div>
+
+        <span class="table-preview-badge">
+            PREVIEW
+        </span>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="matrix-table">
+
+            <tbody>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        1
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                    <td>
+                        0.021
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        2
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                    <td>
+                        0.021
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        3
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                    <td>
+                        0.021
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        4
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                    <td>
+                        0.021
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        5
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                    <td>
+                        0.021
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        6
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                    <td>
+                        0.021
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        7
+                    </th>
+
+                    
+
+                    <td>
+                        0.148
+                    </td>
+
+                    
+
+                    <td>
+                        0.175
+                    </td>
+
+                    
+
+                    <td>
+                        -0.037
+                    </td>
+
+                    
+
+                    <td>
+                        -0.052
+                    </td>
+
+                    
+
+                    <td>
+                        0.049
+                    </td>
+
+                    
+
+                    <td>
+                        0.021
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+                <tr>
+
+                    <th class="matrix-index">
+                        8
+                    </th>
+
+                    
+
+                    <td>
+                        0.147
+                    </td>
+
+                    
+
+                    <td>
+                        0.164
+                    </td>
+
+                    
+
+                    <td>
+                        -0.044
+                    </td>
+
+                    
+
+                    <td>
+                        -0.05
+                    </td>
+
+                    
+
+                    <td>
+                        0.047
+                    </td>
+
+                    
+
+                    <td>
+                        0.02
+                    </td>
+
+                    
+
+                </tr>
+
+                
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <div class="table-preview-footer">
+
+        <span>
+            Showing preview values
+        </span>
+
+        <span>
+            Matrix computation performed with NumPy
+        </span>
+
+    </div>
+
+</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <!-- ── Footer ── -->
+        <footer class="editorial-footer">
+            <div class="footer-inner">
+                <div class="footer-left">
+                    <span class="footer-brand">[ λ ] EigenLab</span>
+                    <p class="footer-desc">Linear Algebra &amp; Vector Calculus Mini Project</p>
+                </div>
+                <div class="footer-right">
+                    <span class="footer-meta">Computational Engine: NumPy 2.2 · Django 5.2 · Pillow 12.3</span>
+                    <span class="footer-copy">Spectral Image Transformation &amp; Dimensionality Reduction Laboratory</span>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- ── Staged Loading Overlay (Constructed dynamically or toggled via JS) ── -->
+    <div id="eigenLoadingOverlay" class="eigen-loading-overlay" style="display: none;" role="status" aria-live="polite">
+        <div class="eigen-loading-card">
+            <div class="eigen-loader-visual">
+                <div class="loader-coordinate-ring"></div>
+                <div class="loader-vector-line"></div>
+                <span class="loader-symbol">λ</span>
+            </div>
+            
+            <p class="loader-eyebrow">NUMPY COMPUTATION IN PROGRESS</p>
+            <h3 class="loader-title">Decomposing Eigenspaces</h3>
+            <p class="loader-status-text" id="loaderStatusText">Reading image data...</p>
+
+            <div class="loader-progress-track">
+                <div class="loader-progress-bar"></div>
+            </div>
+
+            <div class="loader-stages-indicator" id="loaderStagesList">
+                <span class="stage-item active">01 Image Ingestion</span>
+                <span class="stage-item">02 Matrix A [0, 1]</span>
+                <span class="stage-item">03 Covariance A<sup>T</sup>A</span>
+                <span class="stage-item">04 Eigen-Decomposition</span>
+                <span class="stage-item">05 Projection P</span>
+                <span class="stage-item">06 Synthesis A<sub>k</sub></span>
+            </div>
+
+            <p class="loader-note">Computing eigenvalues and low-rank Frobenius error metrics. Please keep this tab open.</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/analyzer/app.js"></script>
+    <script src="/static/analyzer/motion.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+/* -------------------------------------------------
+   RESET & GRID  (tiny, no external deps)
+   ------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  line-height: 1.6;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* 12‑column responsive grid */
+.container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 48px);
+}
+.row { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+.col-12 { flex: 0 0 100%; }
+
+@media (min-width: 640px)  { .col-sm-6  { flex: 0 0 calc(50% - .75rem); } }
+@media (min-width: 1024px) { .col-lg-4  { flex: 0 0 calc(33.333% - 1rem); } }
