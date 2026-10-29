@@ -49,3 +49,4 @@ docs/IEEE_MINI_PROJECT_REPORT.html
 # Local screenshots & generated diagram assets
 folder_structure_*.png
 code images/
+.agents/
