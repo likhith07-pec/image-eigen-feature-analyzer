@@ -1,8 +1,51 @@
+# Virtual Environment
 venv/
+ENV/
+env/
+
+# Python cache & compiled files
 __pycache__/
-*.pyc
-db.sqlite3
-media/
+*.py[cod]
+*$py.class
+
+# Environment Variables & Secrets
 .env
+.env.*
+!.env.example
+
+# Database
+db.sqlite3
+*.sqlite3
+
+# Uploaded User Media
+media/
+
+# IDE & Editor files
 .idea/
 .vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+server.*.log
+
+# Temporary & Backup files
+*.bak
+*.backup
+*~
+
+# Generated Documents, Reports & Presentations
+*.docx
+*.pptx
+*.pdf
+presentation.html
+test_result_out.html
+home_original_recovered.html
+docs/IEEE_MINI_PROJECT_REPORT.html
+
+# Local screenshots & generated diagram assets
+folder_structure_*.png
+code images/
